@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  bd:
+    container_name: shop
+    build: ./DB
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres_db}
+      PGDATA: ${PGDATA:-/data/postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres:

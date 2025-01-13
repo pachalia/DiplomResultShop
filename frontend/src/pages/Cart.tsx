@@ -1,0 +1,70 @@
+import { useAppDispatch, useAppSelector } from '../redux/hooks.ts';
+import axios from 'axios';
+import { useEffect } from 'react';
+import { URL_API } from '../constans/url.constans.ts';
+import { setCart } from '../redux/features/slices/shopSlice.ts';
+
+export const Cart = () => {
+	const dispatch = useAppDispatch();
+	const token = window.localStorage.getItem('token');
+	useEffect(() => {
+		axios
+			.get(`${URL_API}/cart`, { headers: { Authorization: token } })
+			.then((res) => dispatch(setCart(res.data)));
+	}, []);
+	const cart = useAppSelector((state) => state.shop.cart);
+
+	const clickHandler = (id: string) => {
+		token
+			? axios
+					.delete(`${URL_API}/cart/${id}`, {
+						headers: { Authorization: token },
+					})
+					.then((res) => {
+						if (res.data) {
+							const newCart = cart.filter((val) => val.id !== id);
+							dispatch(setCart(newCart));
+						}
+					})
+			: null;
+	};
+	return (
+		<div>
+			<h1 className={'text-center mb-10'}>Корзина</h1>
+			{cart &&
+				cart.map((val) => (
+					<div
+						key={val.id}
+						className={
+							'w-10/12 flex border border-solid border-gray-500 p-1 mb-2.5'
+						}
+					>
+						<div className={'w-3/12'}>
+							<img
+								src="https://images.wallpaperscraft.com/image/single/lake_mountain_tree_36589_2650x1600.jpg"
+								alt=""
+							/>
+						</div>
+						<div className={'w-1/12'}></div>
+						<div className={'flex w-full justify-between items-center'}>
+							<div>
+								<h1 className={'text-center'}>
+									Наименование товара: {val.product_name}
+								</h1>
+								<div>Количество в заказе: {val.quantity}</div>
+								<div>{`Стоимость ${val.product_price}р.`}</div>
+								<div>
+									Общая стоимость: {val.quantity * val.product_price}{' '}
+								</div>
+							</div>
+						</div>
+						<button onClick={() => clickHandler(val.id)}> Удалить</button>
+					</div>
+				))}
+			{cart.length &&
+				cart
+					.map((val) => val.quantity * val.product_price)
+					.reduce((acc, val) => (acc += val))}
+		</div>
+	);
+};
