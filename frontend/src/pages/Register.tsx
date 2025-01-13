@@ -61,6 +61,7 @@ export const Register = () => {
 			})
 			.then((res) => {
 				dispatch(setUser(jwtDecode(res.data.accessToken)));
+				window.localStorage.setItem('token', res.data.accessToken);
 			})
 			.catch((e: AxiosError) => {
 				if (e.status === 409) {
