@@ -1,9 +1,9 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks.ts';
-import { setUser } from '../../redux/features/slices/shopSlice.ts';
+import { setUser } from '../../redux/features/slices/userSlice.ts';
 
 export const Layout = () => {
-	const user = useAppSelector((state) => state.shop.current_user);
+	const user = useAppSelector((state) => state.user.current_user);
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	return (
@@ -19,19 +19,21 @@ export const Layout = () => {
 								'flex text-amber-400 text-2xl w-6/12 justify-between'
 							}
 						>
-							<NavLink to={'/'}>Главная</NavLink>
-							<NavLink to={'about'}>О нас</NavLink>
-							{!user && <NavLink to={'register'}>Регистрация</NavLink>}
-							{!user && <NavLink to={'login'}>Логин</NavLink>}
-							{user && <NavLink to={'cart'}>Корзина</NavLink>}
-							<NavLink to={'admin'}>Admin</NavLink>
+							<NavLink to={'/diplomshop/'}>Главная</NavLink>
+							<NavLink to={'/diplomshop/about'}>О нас</NavLink>
+							{!user && (
+								<NavLink to={'/diplomshop/register'}>Регистрация</NavLink>
+							)}
+							{!user && <NavLink to={'/diplomshop/login'}>Логин</NavLink>}
+							{user && <NavLink to={'/diplomshop/cart'}>Корзина</NavLink>}
+							<NavLink to={'/diplomshop/admin'}>Admin</NavLink>
 							{user && (
 								<div
 									className={'cursor-pointer'}
 									onClick={() => {
 										window.localStorage.removeItem('token');
 										dispatch(setUser(null));
-										navigate('/login');
+										navigate('/diplomshop/login');
 									}}
 								>
 									Выход
@@ -46,7 +48,6 @@ export const Layout = () => {
 					</div>
 				</header>
 				<div className={'flex bg-amber-50 h-screen'}>
-					{/*<Category />*/}
 					<Outlet />
 				</div>
 			</div>

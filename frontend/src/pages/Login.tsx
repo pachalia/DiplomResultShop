@@ -1,8 +1,9 @@
 import { useController, useForm } from 'react-hook-form';
 import axios, { AxiosError } from 'axios';
 import { useAppDispatch } from '../redux/hooks.ts';
-import { setUser } from '../redux/features/slices/shopSlice.ts';
 import { jwtDecode } from 'jwt-decode';
+import {setUser} from "../redux/features/slices/userSlice.ts";
+import {URL_API} from "../constans/url.constans.ts";
 
 type FormData = {
 	email: string;
@@ -40,7 +41,7 @@ export const Login = () => {
 
 	const onSubmit = (data: FormData) => {
 		axios
-			.post('http://localhost:3010/api/auth/login', {
+			.post(`${URL_API}/auth/login`, {
 				email: data.email,
 				password: data.password,
 			})

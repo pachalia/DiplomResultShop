@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks.ts';
 import axios from 'axios';
 import { useEffect } from 'react';
 import { URL_API } from '../constans/url.constans.ts';
-import { setCart } from '../redux/features/slices/shopSlice.ts';
+import { setCart } from '../redux/features/slices/cartSlice.ts';
 
 export const Cart = () => {
 	const dispatch = useAppDispatch();
@@ -12,7 +12,7 @@ export const Cart = () => {
 			.get(`${URL_API}/cart`, { headers: { Authorization: token } })
 			.then((res) => dispatch(setCart(res.data)));
 	}, []);
-	const cart = useAppSelector((state) => state.shop.cart);
+	const { cart } = useAppSelector((state) => state.cart);
 
 	const clickHandler = (id: string) => {
 		token

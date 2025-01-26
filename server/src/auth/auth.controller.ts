@@ -73,12 +73,13 @@ export class AuthController {
 			return;
 		}
 		await this.authService.deleteRefreshToken(refreshToken);
-		res.cookie(REFRESH_TOKEN, '', {
-			sameSite: 'lax',
-			httpOnly: true,
-			secure: true,
-			expires: new Date(),
-		});
+		// res.cookie(REFRESH_TOKEN, '', {
+		// 	sameSite: 'lax',
+		// 	httpOnly: true,
+		// 	secure: true,
+		// 	expires: new Date(),
+		// });
+		res.clearCookie(REFRESH_TOKEN);
 		res.sendStatus(HttpStatus.OK);
 	}
 
@@ -88,7 +89,6 @@ export class AuthController {
 		@Res() res: Response,
 		@UserAgent() agent: string,
 	) {
-		console.log(res);
 		if (!refreshToken) {
 			throw new UnauthorizedException();
 		}
@@ -104,10 +104,10 @@ export class AuthController {
 			throw new UnauthorizedException();
 		}
 		res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
-			httpOnly: true,
+			httpOnly: false,
 			sameSite: 'lax',
 			expires: new Date(tokens.refreshToken.exp),
-			secure: false,
+			secure: true,
 			// this.configService.get('NODE_ENV', 'development') === 'production',
 			path: '/',
 		});

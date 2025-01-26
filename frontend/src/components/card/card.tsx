@@ -1,90 +1,47 @@
-import { IProduct } from '../../redux/features/slices/shopSlice.ts';
-import { NavLink, useParams } from 'react-router-dom';
-import { useAppSelector } from '../../redux/hooks.ts';
-import { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
-type Order = 'ASK' | 'DESK' | null;
-export const Card: React.FC = () => {
-	const [orderBy, setOrderBy] = useState<Order>(null);
-	const { products } = useAppSelector((state) => state.shop);
-
-	const { id } = useParams<{ id: string }>();
-	const [productsByCategories, setProductByCategories] = useState<IProduct[]>([]);
-	useEffect(() => {
-		if (id && orderBy === 'ASK') {
-			setProductByCategories(() => [
-				...products
-					.filter((val) => val.category_id === id)
-					.sort((a, b) => a.price - b.price),
-			]);
-		}
-		if (id && orderBy === 'DESK') {
-			setProductByCategories(() => [
-				...products
-					.filter((val) => val.category_id === id)
-					.sort((a, b) => b.price - a.price),
-			]);
-		}
-		if (id && !orderBy) {
-			setProductByCategories(() => [
-				...products.filter((val) => val.category_id === id),
-			]);
-		}
-		if (!id && orderBy === 'ASK') {
-			setProductByCategories(() => [...products.sort((a, b) => a.price - b.price)]);
-		}
-		if (!id && orderBy === 'DESK') {
-			setProductByCategories(() => [...products.sort((a, b) => b.price - a.price)]);
-		}
-		if (!id && !orderBy) {
-			setProductByCategories(() => [...products]);
-		}
-	}, [id, products, orderBy]);
-
-	const clickHandler = () => {
-		!orderBy
-			? setOrderBy('DESK')
-			: orderBy === 'DESK'
-				? setOrderBy('ASK')
-				: setOrderBy(null);
-	};
+interface IProductsCardProps {
+	id: string;
+	image: string | null;
+	name: string;
+	price: number;
+}
+export const Card: React.FC<IProductsCardProps> = ({ image, price, name, id }) => {
 	return (
 		<>
-			<div className={'flex flex-col items-end w-10/12'}>
-				<button onClick={clickHandler}>Кнопка</button>
-				{productsByCategories &&
-					productsByCategories.map((val) => (
-						<div
-							key={val.id}
-							className={
-								'w-10/12 flex border border-solid border-gray-500 p-1 mb-2.5'
-							}
+			<div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4 w-6/12">
+				{image && <img className="rounded-t-lg m-auto" src={image} alt="" />}
+				<div className="p-5">
+					<a href="#">
+						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-center">
+							{name}
+						</h5>
+					</a>
+					<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+						{`Цена ${price}р.`}
+					</p>
+					<NavLink
+						to={`/product/${id}`}
+						className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+					>
+						Узнать больше
+						<svg
+							className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 14 10"
 						>
-							<div className={'w-3/12'}>
-								{val.image ? (
-									<img src={val.image} alt="" />
-								) : (
-									'нет изобр.'
-								)}
-								{/*<img*/}
-								{/*	src={*/}
-								{/*		val.image*/}
-								{/*			? val.image*/}
-								{/*			: 'https://images.wallpaperscraft.com/image/single/lake_mountain_tree_36589_2650x1600.jpg'*/}
-								{/*	}*/}
-								{/*	alt=""*/}
-								{/*/>*/}
-							</div>
-							<div className={'w-1/12'}></div>
-							<div className={'flex w-full justify-between items-center'}>
-								<div>
-									<h1 className={'text-center'}>{val.name}</h1>
-									<div>{`Стоимость ${val.price}р.`}</div>
-								</div>
-							</div>
-							<NavLink to={`/product/${val.id}`}>Карточка</NavLink>
-						</div>
-					))}
+							<path
+								stroke="currentColor"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="2"
+								d="M1 5h12m0 0L9 1m4 4L9 9"
+							/>
+						</svg>
+					</NavLink>
+				</div>
 			</div>
 		</>
 	);

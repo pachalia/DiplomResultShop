@@ -2,8 +2,9 @@ import { useController, useForm } from 'react-hook-form';
 import axios, { AxiosError } from 'axios';
 import { useAppDispatch } from '../redux/hooks.ts';
 import { jwtDecode } from 'jwt-decode';
-import { setUser } from '../redux/features/slices/shopSlice.ts';
 import { useState } from 'react';
+import {setUser} from "../redux/features/slices/userSlice.ts";
+import {URL_API} from "../constans/url.constans.ts";
 
 type FormData = {
 	email: string;
@@ -54,7 +55,7 @@ export const Register = () => {
 
 	const onSubmit = (data: FormData) => {
 		axios
-			.post('http://localhost:3010/api/auth/register', {
+			.post(`${URL_API}/auth/register`, {
 				email: data.email,
 				password: data.password,
 				passwordRepeat: data.password_repeat,

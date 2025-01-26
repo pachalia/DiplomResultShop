@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useAppSelector } from '../../redux/hooks.ts';
 
 export const Category = () => {
-	const { categories } = useAppSelector((state) => state.shop);
+	const { categories } = useAppSelector((state) => state.category);
 
 	return (
 		<>

@@ -3,7 +3,7 @@ import { useController, useForm } from 'react-hook-form';
 import axios from 'axios';
 import { URL_API_PRODUCTS } from '../../constans/url.constans.ts';
 import { useAppDispatch } from '../../redux/hooks.ts';
-import { addProduct } from '../../redux/features/slices/shopSlice.ts';
+import { addProduct } from '../../redux/features/slices/productSlice.ts';
 import { AddCategory } from '../addCategory/addCategory.tsx';
 
 type FormData = {

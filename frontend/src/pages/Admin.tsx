@@ -1,9 +1,9 @@
-import { AddProduct } from '../components/addProduct/addProduct.tsx';
+import { AddProduct } from '../components';
 import { useAppSelector } from '../redux/hooks.ts';
-import { ProductTableForAdmin } from '../components/productTableForAdmin/productTableForAdmin.tsx';
+import { ProductTableForAdmin } from '../components';
 
 export const Admin = () => {
-	const { categories } = useAppSelector((state) => state.shop);
+	const { categories } = useAppSelector((state) => state.category);
 	return (
 		<>
 			{categories && <AddProduct categories={categories.map((val) => val)} />}

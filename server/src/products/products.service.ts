@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePtoductDto } from '../dto/create-product.dto';
 import { Product } from '@prisma/client';
 import { SharpService } from 'nestjs-sharp';
+import { PaginationDto } from '../shared/pagination.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductsService {
@@ -33,10 +35,63 @@ export class ProductsService {
 		}
 	}
 
-	async getProducts(): Promise<Product[]> {
-		return await this.prisma.product.findMany();
+	async getProducts(productPagination: PaginationDto): Promise<[Product[], number]> {
+		const {
+			category,
+			order,
+			offset: skip,
+			limit: take,
+		} = plainToInstance(PaginationDto, productPagination);
+		let products = [];
+		let count: number = 0;
+		if (!category) {
+			count = await this.prisma.product.count();
+			products = await this.prisma.product.findMany({
+				skip,
+				take,
+				orderBy: order ? { price: order } : undefined,
+			});
+			return [products, count];
+		}
+		if (order && order !== 'asc' && order !== 'desc') {
+			console.log(1);
+			throw new BadRequestException(
+				`Нужно указать 'asc' или 'desc'. У вас указан '${order}'`,
+			);
+		}
+		const _category = await this.prisma.category.findFirst({
+			where: { name: category },
+		});
+		if (!_category) throw new NotFoundException('Категория не найдена');
+		count = await this.prisma.product.count({ where: { category_id: category } });
+		products = await this.prisma.product.findMany({
+			where: { category_id: category },
+			skip,
+			take,
+			orderBy: order ? { price: order } : undefined,
+		});
+		return [products, count];
 	}
 
+	async updateProduct(product: Partial<Product>) {
+		if (!product.id) {
+			throw new BadRequestException('Не передан id');
+		}
+		const _product = await this.prisma.product.findFirst({
+			where: { id: product.id },
+		});
+		if (!_product) {
+			throw new BadRequestException(`Продукт с ${product.id} не найден в базе`);
+		}
+		return this.prisma.product.update({
+			where: { id: product.id },
+			data: {
+				price: product.price ?? undefined,
+				name: product.name ?? undefined,
+				quantity: product.quantity ?? undefined,
+			},
+		});
+	}
 	async getProductById(id: string): Promise<Product> {
 		return await this.prisma.product.findFirst({ where: { id } });
 	}
