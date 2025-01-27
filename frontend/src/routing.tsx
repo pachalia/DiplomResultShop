@@ -18,42 +18,30 @@ export const Routing = () => {
 		<Routes>
 			<Route element={<Layout />}>
 				<Route element={<Category />}>
-					<Route path={'diplomshop/'} element={<Home />} />
-					<Route
-						path={'diplomshop/product/:id'}
-						element={<ProductCardInfo />}
-					/>
-					<Route path={'diplomshop/about'} element={<About />} />
+					<Route path={'/'} element={<Home />} />
+					<Route path={'product/:id'} element={<ProductCardInfo />} />
+					<Route path={'about'} element={<About />} />
 
 					<Route
-						path={'diplomshop/cart'}
-						element={user ? <Cart /> : <Navigate to={'diplomshop/'} />}
+						path={'cart'}
+						element={user ? <Cart /> : <Navigate to={'/'} />}
 					/>
 				</Route>
 				<Route
-					path={'diplomshop/login'}
-					element={!user ? <Login /> : <Navigate to={'diplomshop/'} />}
+					path={'login'}
+					element={!user ? <Login /> : <Navigate to={'/'} />}
 				/>
 
 				<Route
-					path={'diplomshop/register'}
+					path={'register'}
 					element={!user ? <Register /> : <Navigate to={'/'} />}
 				/>
 				<Route
-					path={'diplomshop/admin/'}
-					element={
-						user?.role === 'ADMIN' ? (
-							<Admin />
-						) : (
-							<Navigate to={'diplomshop/'} />
-						)
-					}
+					path={'admin'}
+					element={user?.role === 'ADMIN' ? <Admin /> : <Navigate to={'/'} />}
 				/>
-				<Route path={'diplomshop/404'} element={<NotFound />} />
-				<Route
-					path={'diplomshop/*'}
-					element={<Navigate to={'diplomshop/404'} />}
-				/>
+				<Route path={'404'} element={<NotFound />} />
+				<Route path={'*'} element={<Navigate to={'404'} />} />
 			</Route>
 		</Routes>
 	);

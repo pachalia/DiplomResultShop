@@ -8,7 +8,6 @@ import {
 	Get,
 	HttpStatus,
 	Post,
-	Query,
 	Req,
 	Res,
 	UnauthorizedException,
@@ -17,14 +16,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { map, mergeMap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { GoogleGuard } from './guargs/google.guard';
-import { Tokens } from './interfaces';
-import { handleTimeoutAndErrors } from '@common/helpers';
 import { YandexGuard } from './guargs/yandex.guard';
-import { Provider } from '@prisma/client';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -50,20 +45,22 @@ export class AuthController {
 				`Не получается зарегистрировать пользователя с данными ${JSON.stringify(dto)}`,
 			);
 		}
-		const carts = await this.authService.registerCart(user.id);
-		const tokens = await this.authService.generateTokens(user, agent, carts.id);
-		this.setRefreshTokenToCookies(tokens, res);
+		await this.authService.registerCart(user.id);
+		const tokens = await this.authService.generateTokens(user, agent);
+		await this.authService.cookieAuthAndRefresh(tokens, res);
+		res.json(tokens);
 	}
 
 	@Post('login')
 	async login(@Body() dto: LoginDto, @Res() res: Response, @UserAgent() agent: string) {
-		const tokens = await this.authService.login(dto, agent);
+		const tokens = await this.authService.login(dto, agent, res);
 		if (!tokens) {
 			throw new BadRequestException(
 				`Не получается войти с данными ${JSON.stringify(dto)}`,
 			);
 		}
-		this.setRefreshTokenToCookies(tokens, res);
+		await this.authService.cookieAuthAndRefresh(tokens, res);
+		res.json(tokens);
 	}
 
 	@Get('logout')
@@ -73,14 +70,7 @@ export class AuthController {
 			return;
 		}
 		await this.authService.deleteRefreshToken(refreshToken);
-		// res.cookie(REFRESH_TOKEN, '', {
-		// 	sameSite: 'lax',
-		// 	httpOnly: true,
-		// 	secure: true,
-		// 	expires: new Date(),
-		// });
-		res.clearCookie(REFRESH_TOKEN);
-		res.sendStatus(HttpStatus.OK);
+		this.authService.logout(res);
 	}
 
 	@Get('refresh-tokens')
@@ -96,23 +86,23 @@ export class AuthController {
 		if (!tokens) {
 			throw new UnauthorizedException();
 		}
-		this.setRefreshTokenToCookies(tokens, res);
+		res.json(tokens);
 	}
 
-	private setRefreshTokenToCookies(tokens: Tokens, res: Response) {
-		if (!tokens) {
-			throw new UnauthorizedException();
-		}
-		res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
-			httpOnly: false,
-			sameSite: 'lax',
-			expires: new Date(tokens.refreshToken.exp),
-			secure: true,
-			// this.configService.get('NODE_ENV', 'development') === 'production',
-			path: '/',
-		});
-		res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
-	}
+	// private setRefreshTokenToCookies(tokens: ITokenModel, res: Response) {
+	// 	if (!tokens) {
+	// 		throw new UnauthorizedException();
+	// 	}
+	// 	res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
+	// 		httpOnly: false,
+	// 		sameSite: 'lax',
+	// 		expires: new Date(tokens.refreshToken.exp),
+	// 		secure: true,
+	// 		// this.configService.get('NODE_ENV', 'development') === 'production',
+	// 		path: '/',
+	// 	});
+	// 	res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
+	// }
 
 	@UseGuards(GoogleGuard)
 	@Get('google')
@@ -128,23 +118,23 @@ export class AuthController {
 		);
 	}
 
-	@Get('success-google')
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	successGoogle(
-		@Query('token') token: string,
-		@UserAgent() agent: string,
-		@Res() res: Response,
-	) {
-		return this.httpService
-			.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`)
-			.pipe(
-				mergeMap(({ data: { email } }) =>
-					this.authService.providerAuth(email, agent, Provider.GOOGLE),
-				),
-				map((data) => this.setRefreshTokenToCookies(data, res)),
-				handleTimeoutAndErrors(),
-			);
-	}
+	// @Get('success-google')
+	// // eslint-disable-next-line @typescript-eslint/no-empty-function
+	// successGoogle(
+	// 	@Query('token') token: string,
+	// 	@UserAgent() agent: string,
+	// 	@Res() res: Response,
+	// ) {
+	// 	return this.httpService
+	// 		.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`)
+	// 		.pipe(
+	// 			mergeMap(({ data: { email } }) =>
+	// 				this.authService.providerAuth(email, agent, Provider.GOOGLE),
+	// 			),
+	// 			map((data) => this.setRefreshTokenToCookies(data, res)),
+	// 			handleTimeoutAndErrors(),
+	// 		);
+	// }
 
 	@UseGuards(YandexGuard)
 	@Get('yandex')
@@ -160,21 +150,21 @@ export class AuthController {
 		);
 	}
 
-	@Get('success-yandex')
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	successYandex(
-		@Query('token') token: string,
-		@UserAgent() agent: string,
-		@Res() res: Response,
-	) {
-		return this.httpService
-			.get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
-			.pipe(
-				mergeMap(({ data: { default_email } }) =>
-					this.authService.providerAuth(default_email, agent, Provider.YANDEX),
-				),
-				map((data) => this.setRefreshTokenToCookies(data, res)),
-				handleTimeoutAndErrors(),
-			);
-	}
+	// @Get('success-yandex')
+	// // eslint-disable-next-line @typescript-eslint/no-empty-function
+	// successYandex(
+	// 	@Query('token') token: string,
+	// 	@UserAgent() agent: string,
+	// 	@Res() res: Response,
+	// ) {
+	// 	return this.httpService
+	// 		.get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
+	// 		.pipe(
+	// 			mergeMap(({ data: { default_email } }) =>
+	// 				this.authService.providerAuth(default_email, agent, Provider.YANDEX),
+	// 			),
+	// 			map((data) => this.setRefreshTokenToCookies(data, res)),
+	// 			handleTimeoutAndErrors(),
+	// 		);
+	// }
 }

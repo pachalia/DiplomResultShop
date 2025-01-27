@@ -19,21 +19,19 @@ export const Layout = () => {
 								'flex text-amber-400 text-2xl w-6/12 justify-between'
 							}
 						>
-							<NavLink to={'/diplomshop/'}>Главная</NavLink>
-							<NavLink to={'/diplomshop/about'}>О нас</NavLink>
-							{!user && (
-								<NavLink to={'/diplomshop/register'}>Регистрация</NavLink>
-							)}
-							{!user && <NavLink to={'/diplomshop/login'}>Логин</NavLink>}
-							{user && <NavLink to={'/diplomshop/cart'}>Корзина</NavLink>}
-							<NavLink to={'/diplomshop/admin'}>Admin</NavLink>
+							<NavLink to={'/'}>Главная</NavLink>
+							<NavLink to={'/about'}>О нас</NavLink>
+							{!user && <NavLink to={'/register'}>Регистрация</NavLink>}
+							{!user && <NavLink to={'/login'}>Логин</NavLink>}
+							{user && <NavLink to={'/cart'}>Корзина</NavLink>}
+							<NavLink to={'/admin'}>Admin</NavLink>
 							{user && (
 								<div
 									className={'cursor-pointer'}
 									onClick={() => {
 										window.localStorage.removeItem('token');
 										dispatch(setUser(null));
-										navigate('/diplomshop/login');
+										navigate('/login');
 									}}
 								>
 									Выход
