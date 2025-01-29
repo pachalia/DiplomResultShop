@@ -1,4 +1,4 @@
-import { Cookie, Public, UserAgent } from '@common/decorators';
+import { Cookie, CurrentUser, Public, UserAgent } from '@common/decorators';
 import { HttpService } from '@nestjs/axios';
 import {
 	BadRequestException,
@@ -10,7 +10,6 @@ import {
 	Post,
 	Req,
 	Res,
-	UnauthorizedException,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
@@ -20,10 +19,10 @@ import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { GoogleGuard } from './guargs/google.guard';
 import { YandexGuard } from './guargs/yandex.guard';
+import { IUser } from '../interfaces/user.interface';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
-@Public()
 @Controller('auth')
 export class AuthController {
 	constructor(
@@ -33,6 +32,7 @@ export class AuthController {
 	) {}
 
 	@UseInterceptors(ClassSerializerInterceptor)
+	@Public()
 	@Post('register')
 	async register(
 		@Body() dto: RegisterDto,
@@ -48,9 +48,10 @@ export class AuthController {
 		await this.authService.registerCart(user.id);
 		const tokens = await this.authService.generateTokens(user, agent);
 		await this.authService.cookieAuthAndRefresh(tokens, res);
-		res.json(tokens);
+		res.json({ id: tokens.id, email: tokens.email, role: tokens.role });
 	}
 
+	@Public()
 	@Post('login')
 	async login(@Body() dto: LoginDto, @Res() res: Response, @UserAgent() agent: string) {
 		const tokens = await this.authService.login(dto, agent, res);
@@ -60,9 +61,15 @@ export class AuthController {
 			);
 		}
 		await this.authService.cookieAuthAndRefresh(tokens, res);
-		res.json(tokens);
+		res.json({ id: tokens.id, email: tokens.email, role: tokens.role });
 	}
 
+	@Get('current-user')
+	getCurrentUser(@CurrentUser() user: IUser, @Res() res: Response) {
+		res.json({ id: user.id, email: user.email, role: user.role });
+	}
+
+	@Public()
 	@Get('logout')
 	async logout(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
 		if (!refreshToken) {
@@ -73,21 +80,21 @@ export class AuthController {
 		this.authService.logout(res);
 	}
 
-	@Get('refresh-tokens')
-	async refreshTokens(
-		@Cookie(REFRESH_TOKEN) refreshToken: string,
-		@Res() res: Response,
-		@UserAgent() agent: string,
-	) {
-		if (!refreshToken) {
-			throw new UnauthorizedException();
-		}
-		const tokens = await this.authService.refreshTokens(refreshToken, agent);
-		if (!tokens) {
-			throw new UnauthorizedException();
-		}
-		res.json(tokens);
-	}
+	// @Get('refresh-tokens')
+	// async refreshTokens(
+	// 	@Cookie(REFRESH_TOKEN) refreshToken: string,
+	// 	@Res() res: Response,
+	// 	@UserAgent() agent: string,
+	// ) {
+	// 	if (!refreshToken) {
+	// 		throw new UnauthorizedException();
+	// 	}
+	// 	const tokens = await this.authService.refreshTokens(refreshToken, agent);
+	// 	if (!tokens) {
+	// 		throw new UnauthorizedException();
+	// 	}
+	// 	res.json(tokens);
+	// }
 
 	// private setRefreshTokenToCookies(tokens: ITokenModel, res: Response) {
 	// 	if (!tokens) {

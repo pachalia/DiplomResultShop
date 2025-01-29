@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  nginx:
+    image: pachalia/nginx1.25.2:latest
+    container_name: web-server
+    volumes:
+      - ./nginx/certificate:/etc/nginx/certificate
+      - ./nginx:/etc/nginx/conf.d
+      - ./client:/var/www/andreypachalia.ru
+      - ./nginxlogs:/var/log/nginx
+    ports:
+      - '80:80'
+      - '443:443/tcp'
+      - '443:443/udp'
+    restart: unless-stopped
+    networks:
+      - shop_network
+networks:
+  shop_network:
+    external: true

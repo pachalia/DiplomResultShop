@@ -42,13 +42,17 @@ export const ProductTableForAdmin = () => {
 	};
 
 	return (
-		<ProductTableForAdminLayout
-			lineTable={lineTable}
-			products={products}
-			clickHandler={clickHandler}
-			handlePriceChange={handlePriceChange}
-			handleSavePrice={handleSavePrice}
-			editStates={editStates}
-		/>
+		<>
+			{products.length && (
+				<ProductTableForAdminLayout
+					lineTable={lineTable}
+					products={products}
+					clickHandler={clickHandler}
+					handlePriceChange={handlePriceChange}
+					handleSavePrice={handleSavePrice}
+					editStates={editStates}
+				/>
+			)}
+		</>
 	);
 };

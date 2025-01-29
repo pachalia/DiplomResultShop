@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	Logger,
+	NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePtoductDto } from '../dto/create-product.dto';
 import { Product } from '@prisma/client';
@@ -8,6 +13,7 @@ import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductsService {
+	private logger = new Logger();
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly sharpService: SharpService,
@@ -33,6 +39,16 @@ export class ProductsService {
 				},
 			});
 		}
+	}
+
+	async deleteProduct(id: string) {
+		const product = await this.prisma.product.findFirst({ where: { id } });
+		if (!product) {
+			throw new NotFoundException(`Продукт с таким id не найден`);
+		}
+		return await this.prisma.product
+			.delete({ where: { id } })
+			.catch((e: Error) => this.logger.error(e.message));
 	}
 
 	async getProducts(productPagination: PaginationDto): Promise<[Product[], number]> {

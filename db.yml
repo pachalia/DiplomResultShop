@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   bd:
-    container_name: shop
+    container_name: shop_db
     build: ./DB
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -11,6 +11,10 @@ services:
     ports:
       - "${DB_PORT:-5432}:5432"
     restart: unless-stopped
-
-volumes:
-  postgres:
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+    networks:
+      - shop_network
+networks:
+  shop_network:
+    external: true

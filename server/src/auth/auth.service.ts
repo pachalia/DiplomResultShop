@@ -11,7 +11,6 @@ import { Provider, Token, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 import { UserService } from '@user/user.service';
 import { compareSync } from 'bcrypt';
-import { add } from 'date-fns';
 import { v4 } from 'uuid';
 import { LoginDto, RegisterDto } from './dto';
 import { Response } from 'express';
@@ -32,6 +31,7 @@ export class AuthService {
 		private readonly configService: ConfigService,
 	) {}
 
+	// Регистрирует пользователя//
 	async register(dto: RegisterDto): Promise<User> {
 		const user: User = await this.userService.findOne(dto.email).catch((err) => {
 			this.logger.error(err);
@@ -45,17 +45,49 @@ export class AuthService {
 			return null;
 		});
 	}
-	async refreshTokens(refreshToken: string, agent: string): Promise<ITokenModel> {
-		const token = await this.prismaService.token.delete({
-			where: { token: refreshToken },
-		});
-		if (!token || new Date(token.exp) < new Date()) {
+	async refreshTokens(
+		refreshToken: string,
+		agent: string,
+		res: Response,
+	): Promise<ITokenModel> {
+		const token =
+			refreshToken &&
+			(await this.prismaService.token.findFirst({
+				where: { token: refreshToken },
+			}));
+
+		if (!token) {
 			throw new UnauthorizedException();
 		}
 		const user = await this.userService
 			.findOne(token.userId)
 			.catch((e: Error) => this.logger.error(e.message));
-		return user && this.generateTokens(user, agent);
+		if (!user) return;
+
+		if (new Date(token.exp) < new Date()) {
+			await this.prismaService.token.delete({ where: { token: refreshToken } });
+			const newToken = await this.generateTokens(user, agent);
+			this.cookieAuthAndRefresh(newToken, res);
+			return newToken;
+		}
+		const accessToken = await this.accessToken({
+			id: user.id,
+			email: user.email,
+			role: user.role,
+		});
+		const expiration = Date.parse(token.exp.toString()) - Date.now();
+		const newToken: ITokenModel = {
+			id: user.id,
+			email: user.email,
+			role: user.role,
+			accessToken,
+			refreshToken: {
+				token: token.token,
+				exp: expiration,
+			},
+		};
+		this.cookieAuthAndRefresh(newToken, res);
+		return newToken;
 	}
 
 	async registerCart(userId: string) {
@@ -98,8 +130,9 @@ export class AuthService {
 			expires: new Date(Date.now() + exp),
 		});
 	}
-	async generateTokens(user: IUser, agent: string): Promise<ITokenModel> {
-		const accessToken = {
+
+	async accessToken(user: IUser) {
+		return {
 			token:
 				'Bearer ' +
 				this.jwtService.sign({
@@ -111,6 +144,10 @@ export class AuthService {
 				Date.now() + parseInt(this.configService.get<string>('JWT_EXP')),
 			).valueOf(),
 		};
+	}
+
+	async generateTokens(user: IUser, agent: string): Promise<ITokenModel> {
+		const accessToken = await this.accessToken(user);
 		const refreshToken = await this.getRefreshToken(user.id, agent);
 		const { id, email, role } = user;
 		return {
@@ -120,11 +157,12 @@ export class AuthService {
 			accessToken,
 			refreshToken: {
 				token: refreshToken.token,
-				exp: Date.parse(refreshToken.exp.toString()),
+				exp: refreshToken.exp,
 			},
 		};
 	}
 
+	//Сохранение refreshToken в БД //
 	private async getRefreshToken(userId: string, agent: string): Promise<Token> {
 		const _token = await this.prismaService.token.findFirst({
 			where: {
@@ -137,11 +175,11 @@ export class AuthService {
 			where: { token },
 			update: {
 				token: v4(),
-				exp: add(new Date(), { months: 1 }),
+				exp: convertToMillisecondsUtil('1M'),
 			},
 			create: {
 				token: v4(),
-				exp: add(new Date(), { months: 1 }),
+				exp: convertToMillisecondsUtil('1M'),
 				userId,
 				userAgent: agent,
 			},
@@ -174,34 +212,7 @@ export class AuthService {
 		}
 		return this.generateTokens(user, agent);
 	}
-	async updateToken(
-		refreshtoken: string,
-		res: Response,
-		agent?: string | null,
-	): Promise<ITokenModel> | null {
-		const _refreshtoken = await this.prismaService.token
-			.findFirst({
-				where: { token: refreshtoken },
-			})
-			.catch((e: Error) => this.logger.error(e.message));
-		if (!_refreshtoken) {
-			this.logout(res);
-			return null;
-		}
-		const token = await this.prismaService.token
-			.findFirst({
-				where: { token: refreshtoken },
-			})
-			.catch((e: Error) => this.logger.error(e.message));
-		const user =
-			token &&
-			(await this.prismaService.user.findFirst({
-				where: { id: token.userId },
-			}));
-		const newToken = await this.generateTokens(user, agent);
-		this.cookieAuthAndRefresh(newToken, res);
-		return newToken;
-	}
+
 	logout(res: Response) {
 		res.clearCookie(ACCESS_TOKEN);
 		res.clearCookie(REFRESH_TOKEN);

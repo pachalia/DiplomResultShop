@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	Post,
@@ -41,16 +42,22 @@ export class ProductsController {
 		const [data, total] = await this.productService.getProducts(productPagination);
 		return { ...productPagination, data, total };
 	}
+
+	@Put()
+	updateProduct(@Body() product: Partial<Product>) {
+		return this.productService.updateProduct(product);
+	}
+
 	@Get(':id')
 	getProductById(@Param('id') id: string) {
 		return this.productService.getProductById(id);
 	}
+	@Delete(':id')
+	deleteProducts(@Param('id') id: string) {
+		return this.productService.deleteProduct(id);
+	}
 	@Get('categories/:id')
 	getProductsByCategories(@Param('id') id: string) {
 		return this.productService.getProductsByCategory(id);
-	}
-	@Put()
-	updateProduct(@Body() product: Partial<Product>) {
-		return this.productService.updateProduct(product);
 	}
 }

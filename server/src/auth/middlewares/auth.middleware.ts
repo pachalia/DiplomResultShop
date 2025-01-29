@@ -12,13 +12,14 @@ export class AuthMiddleware implements NestMiddleware {
 
 	async use(req: Request, res: Response, next: NextFunction): Promise<void> {
 		req['__moduleRef__'] = this.moduleRef;
+		const agent = req.headers['user-agent'];
 		const jwt = req.cookies.accesstoken;
-		const _refreshtoken = req.cookies.refreshtoken;
+		const _refreshtoken: string = req.cookies.refreshtoken;
 		if (jwt) {
 			req.headers.authorization = jwt;
 		} else {
 			const newToken = _refreshtoken
-				? await this.authService.updateToken(_refreshtoken, res)
+				? await this.authService.refreshTokens(_refreshtoken, agent, res)
 				: null;
 			newToken ? (req.headers.authorization = newToken.accessToken.token) : null;
 		}

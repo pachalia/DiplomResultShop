@@ -1,4 +1,5 @@
 import { IProduct } from '../../interfaces/product.interface.ts';
+import { ProductService } from '../../services/product.service.ts';
 
 interface EditState {
 	isEditing: boolean;
@@ -13,6 +14,10 @@ interface ProductTableForAdminLayoutCellProps {
 	handlePriceChange: (id: string, newPrice: number) => void;
 	handleSavePrice: (id: string) => void;
 }
+
+const deleteClickHandler = (id: string) => {
+	ProductService.deleteProducts(id);
+};
 
 export const ProductTableForAdminLayoutCell: React.FC<
 	ProductTableForAdminLayoutCellProps
@@ -39,7 +44,9 @@ export const ProductTableForAdminLayoutCell: React.FC<
 									handlePriceChange(value.id, +e.target.value)
 								}
 							/>
-							<button onClick={() => handleSavePrice(value.id)}>Отпр.</button>
+							<button onClick={() => handleSavePrice(value.id)}>
+								Отпр.
+							</button>
 						</div>
 					) : (
 						<div className={'flex justify-between'}>
@@ -60,7 +67,9 @@ export const ProductTableForAdminLayoutCell: React.FC<
 						'нет изобр'
 					)}
 				</td>
-				<td className={'border border-solid border-gray-500'}>Удалить</td>
+				<td className={'border border-solid border-gray-500'}>
+					<button onClick={() => deleteClickHandler(value.id)}>Удалить</button>
+				</td>
 			</tr>
 		</>
 	);

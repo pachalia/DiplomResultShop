@@ -1,4 +1,4 @@
-export function convertToMillisecondsUtil(timeStr: string) {
+export function convertToMillisecondsUtil(timeStr: string): number {
 	// Если timeStr является числом, возвращаем его
 	if (!isNaN(timeStr as any)) {
 		return parseInt(timeStr);

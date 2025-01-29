@@ -1,10 +1,5 @@
 import { useController, useForm } from 'react-hook-form';
-import axios, { AxiosError } from 'axios';
-import { useAppDispatch } from '../redux/hooks.ts';
-import { jwtDecode } from 'jwt-decode';
-import { useState } from 'react';
-import {setUser} from "../redux/features/slices/userSlice.ts";
-import {URL_API} from "../constans/url.constans.ts";
+import { UserService } from '../services/user.service.ts';
 
 type FormData = {
 	email: string;
@@ -13,8 +8,6 @@ type FormData = {
 };
 
 export const Register = () => {
-	const [message, setMessage] = useState<string>('');
-	const dispatch = useAppDispatch();
 	const {
 		handleSubmit,
 		control,
@@ -54,21 +47,7 @@ export const Register = () => {
 		});
 
 	const onSubmit = (data: FormData) => {
-		axios
-			.post(`${URL_API}/auth/register`, {
-				email: data.email,
-				password: data.password,
-				passwordRepeat: data.password_repeat,
-			})
-			.then((res) => {
-				dispatch(setUser(jwtDecode(res.data.accessToken)));
-				window.localStorage.setItem('token', res.data.accessToken);
-			})
-			.catch((e: AxiosError) => {
-				if (e.status === 409) {
-					setMessage('Такой пользователь уже зарегестрирован');
-				}
-			});
+		UserService.registerUser(data.email, data.password, data.password_repeat);
 	};
 	return (
 		<>
@@ -89,7 +68,7 @@ export const Register = () => {
 							placeholder={'Введите свой email'}
 							className={'w-full p-3 border border-solid border-b-gray-800'}
 						/>
-						{message && <span style={{ color: 'red' }}>{message}</span>}
+						{/*{message && <span style={{ color: 'red' }}>{message}</span>}*/}
 						{emailFieldState.error && (
 							<span style={{ color: 'red' }}>
 								{emailFieldState.error.message}

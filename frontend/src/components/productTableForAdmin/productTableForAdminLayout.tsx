@@ -26,7 +26,15 @@ export const ProductTableForAdminLayout: React.FC<IProductTableForAdminLayout> =
 }) => {
 	return (
 		<div className={'w-full flex items-center flex-col'}>
-			<table style={{ width: '90%', margin: '0 auto', marginBottom: 40 }}>
+			<table
+				style={{
+					width: '90%',
+					margin: '0 auto',
+					marginBottom: 40,
+					position: 'relative',
+					top: '30%',
+				}}
+			>
 				<thead>
 					<tr>
 						{lineTable.map((val, i) => (

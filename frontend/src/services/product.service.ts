@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { URL_API_PRODUCTS } from '../constans/url.constans.ts';
 import { store } from '../redux/store.ts';
-import { setProducts, updateProduct } from '../redux/features/slices/productSlice.ts';
+import {
+	deleteProduct,
+	setProducts,
+	updateProduct,
+} from '../redux/features/slices/productSlice.ts';
 import { IProductsResponse } from '../responses/products.response.ts';
 import { IPagination } from '../interfaces/pagination.interface.ts';
 import { IProduct } from '../interfaces/product.interface.ts';
@@ -39,5 +43,9 @@ export class ProductService {
 			price: product.price ?? undefined,
 		});
 		store.dispatch(updateProduct(newUpdateProduct.data));
+	}
+	static async deleteProducts(id: string) {
+		const deleteProducts = await axios.delete<IProduct>(`${URL_API_PRODUCTS}/${id}`);
+		deleteProducts.data.id && store.dispatch(deleteProduct(deleteProducts.data.id));
 	}
 }

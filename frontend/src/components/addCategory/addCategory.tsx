@@ -1,16 +1,13 @@
-import { useAppDispatch } from '../../redux/hooks.ts';
+import { useAppSelector } from '../../redux/hooks.ts';
 import { useController, useForm } from 'react-hook-form';
-import axios from 'axios';
-import { URL_API_CATEGORIES } from '../../constans/url.constans.ts';
-import { addCategory } from '../../redux/features/slices/categorySlice.ts';
+import { CategoryService } from '../../services/category.service.ts';
 
 type FormData = {
 	name: string;
 };
 
 export const AddCategory = () => {
-	const token = window.localStorage.getItem('token');
-	const dispatch = useAppDispatch();
+	const { current_user } = useAppSelector((state) => state.user);
 	const {
 		handleSubmit,
 		control,
@@ -28,13 +25,10 @@ export const AddCategory = () => {
 	});
 
 	const onSubmit = (data: FormData) => {
-		if (token)
-			axios
-				.post(URL_API_CATEGORIES, data, { headers: { Authorization: 'token' } })
-				.then((res) => {
-					dispatch(addCategory(res.data.name));
-					reset();
-				});
+		if (current_user?.role === 'ADMIN') {
+			CategoryService.addCategory(data.name);
+			reset();
+		}
 	};
 	return (
 		<>
