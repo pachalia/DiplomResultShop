@@ -1,5 +1,7 @@
-import { useController, useForm } from 'react-hook-form';
-import { UserService } from '../services/user.service.ts';
+import { useForm } from 'react-hook-form';
+import { UserService } from '../services';
+import { loginFieldConfig, LoginFormData } from '../inputConfigs';
+import { useFormControllers } from '../hooks/form-controllers.hook.ts';
 
 type FormData = {
 	email: string;
@@ -7,31 +9,8 @@ type FormData = {
 };
 
 export const Login = () => {
-	const {
-		handleSubmit,
-		control,
-		formState: { isValid },
-	} = useForm<FormData>({ mode: 'onChange' });
-
-	const { field: emailField, fieldState: emailFieldState } = useController({
-		name: 'email',
-		control,
-		defaultValue: '',
-		rules: {
-			required: 'Поле обязательно',
-			pattern: { value: /^\S+@\S+\.\S+$/, message: 'Введите корректный email' },
-		},
-	});
-
-	const { field: passwordField, fieldState: passwordFieldState } = useController({
-		name: 'password',
-		control,
-		defaultValue: '',
-		rules: {
-			required: 'Поле обязательно',
-			minLength: { value: 6, message: 'Минимальное количество 8 символов' },
-		},
-	});
+	const formMethods = useForm<LoginFormData>({ mode: 'onChange' });
+	const controllers = useFormControllers(formMethods, loginFieldConfig);
 
 	const onSubmit = (data: FormData) => {
 		UserService.loginUser(data.email, data.password);
@@ -41,49 +20,47 @@ export const Login = () => {
 			<div className={'flex flex-col w-full relative top-1/4 right-10'}>
 				<h1 style={{ textAlign: 'center' }}>Вход</h1>
 				<form
-					onSubmit={handleSubmit(onSubmit)}
+					onSubmit={formMethods.handleSubmit(onSubmit)}
 					className={'flex flex-col items-center'}
 				>
-					<label
-						className={
-							'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-1/3'
-						}
-					>
-						Email:{' '}
-						<input
-							{...emailField}
-							placeholder={'Введите свой email'}
-							className={'w-full p-3 border border-solid border-b-gray-800'}
-						/>
-						{emailFieldState.error && (
-							<span style={{ color: 'red' }}>
-								{emailFieldState.error.message}
-							</span>
-						)}
-					</label>
-					<label
-						className={
-							'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-1/3'
-						}
-					>
-						Пароль:{' '}
-						<input
-							type={'password'}
-							{...passwordField}
-							placeholder={'Введите свой пароль'}
-							className={'w-full p-3 border-b-gray-800 border border-solid'}
-						/>
-						{passwordFieldState.error && (
-							<span style={{ color: 'red' }}>
-								{passwordFieldState.error.message}
-							</span>
-						)}
-					</label>
-
+					{controllers.map(({ field, fieldState }, index) => (
+						<label
+							key={index}
+							className={
+								'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-1/3'
+							}
+						>
+							{field.name === 'email' && 'Email:'}
+							{field.name === 'password' && 'Пароль:'}
+							<input
+								{...field}
+								placeholder={
+									field.name === 'email'
+										? 'Введите свой email'
+										: 'Введите свой пароль'
+								}
+								type={
+									field.name.includes('password') ? 'password' : 'text'
+								}
+								className={
+									'w-full p-3 border-b-gray-800 border border-solid'
+								}
+							/>
+							{fieldState.error && (
+								<span style={{ color: 'red' }}>
+									{fieldState.error.message}
+								</span>
+							)}
+						</label>
+					))}
 					<button
 						type={'submit'}
-						disabled={!isValid}
-						className={isValid ? 'bg-blue-700 text-white' : undefined}
+						disabled={!formMethods.formState.isValid}
+						className={
+							formMethods.formState.isValid
+								? 'bg-blue-700 text-white'
+								: undefined
+						}
 					>
 						Войти
 					</button>

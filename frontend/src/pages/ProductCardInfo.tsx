@@ -1,55 +1,34 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { URL_API_PRODUCTS } from '../constans/url.constans.ts';
-// import { useController, useForm } from 'react-hook-form';
-import { ProductByIdResponse } from '../responses/productByIdResponse.ts';
 import { IProduct } from '../interfaces/product.interface.ts';
+import { ProductService, CartService } from '../services';
+import { useAppSelector } from '../redux/hooks.ts';
+import { Button, ButtonColors } from '../components';
+import { useForm } from 'react-hook-form';
+import { addProductToCartFieldConfig, AddProductToCartFormData } from '../inputConfigs';
 
-// type FormData = {
-// 	quantity: number;
-// };
+import { useFormControllers } from '../hooks/form-controllers.hook.ts';
 
 export const ProductCardInfo = () => {
 	const { id } = useParams<{ id: string }>();
 	const [product, setProduct] = useState<IProduct>();
-	// const token = window.localStorage.getItem('token');
-
-	// const {
-	// 	handleSubmit,
-	// 	control,
-	// 	formState: { isValid },
-	// } = useForm<FormData>({ mode: 'onChange' });
-	//
-	// const { field: quantity, fieldState: quantityState } = useController({
-	// 	name: 'quantity',
-	// 	control,
-	// 	defaultValue: 1,
-	// 	rules: {
-	// 		min: 1,
-	// 	},
-	// });
-	//
-	// const onSubmit = (data: FormData) => {
-	// 	if (token)
-	// 		axios.post(
-	// 			`${URL_API}/cart`,
-	// 			{
-	// 				productId: product?.id,
-	// 				quantity: +data.quantity,
-	// 			},
-	// 			{ headers: { Authorization: token } },
-	// 		);
-	// };
+	const navigate = useNavigate();
+	const { current_user } = useAppSelector((state) => state.user);
+	const formMethods = useForm<AddProductToCartFormData>();
+	const controllers = useFormControllers(formMethods, addProductToCartFieldConfig);
 
 	useEffect(() => {
-		axios
-			.get<ProductByIdResponse>(`${URL_API_PRODUCTS}/${id}`)
-			.then((res) => setProduct(res.data));
+		id && ProductService.getProductById(id).then((res) => setProduct(res));
 	}, []);
+	const clickButtonHandler = () => {
+		navigate('/login');
+	};
+	const onSubmit = (data: AddProductToCartFormData) => {
+		id && CartService.addProductToCart(id, data.quantity);
+	};
 	return (
 		<div className={'w-full'}>
-			<div className="w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4 w-6/12">
+			<div className="w-10/12 m-auto relative top-1/3 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4">
 				{product?.image && (
 					<img className="rounded-t-lg m-auto" src={product.image} alt="" />
 				)}
@@ -61,75 +40,64 @@ export const ProductCardInfo = () => {
 					<h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
 						{`Описание товара: ${product?.description}`}
 					</h5>
-					{/*<NavLink*/}
-					{/*	to={`/product/${id}`}*/}
-					{/*	className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"*/}
-					{/*>*/}
-					{/*	Узнать больше*/}
-					{/*	<svg*/}
-					{/*		className="rtl:rotate-180 w-3.5 h-3.5 ms-2"*/}
-					{/*		aria-hidden="true"*/}
-					{/*		xmlns="http://www.w3.org/2000/svg"*/}
-					{/*		fill="none"*/}
-					{/*		viewBox="0 0 14 10"*/}
-					{/*	>*/}
-					{/*		<path*/}
-					{/*			stroke="currentColor"*/}
-					{/*			strokeLinecap="round"*/}
-					{/*			strokeLinejoin="round"*/}
-					{/*			strokeWidth="2"*/}
-					{/*			d="M1 5h12m0 0L9 1m4 4L9 9"*/}
-					{/*		/>*/}
-					{/*	</svg>*/}
-					{/*</NavLink>*/}
+				</div>
+				<div className={'flex justify-between items-center'}>
+					<div>{`Цена: ${product && product.price}р.`}</div>
+					{!current_user && (
+						<Button title={'Войти'} onClick={clickButtonHandler} />
+					)}
+					{current_user && (
+						<form
+							onSubmit={formMethods.handleSubmit(onSubmit)}
+							className={'contents'}
+						>
+							{controllers.map(({ field, fieldState }, index) => {
+								return (
+									<>
+										<label
+											key={index}
+											className={
+												'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-2/12'
+											}
+										>
+											{field.name === 'quantity' && 'Количество:'}
+											<input
+												{...field}
+												placeholder={
+													field.name === 'quantity'
+														? 'Введите количество'
+														: undefined
+												}
+												type={
+													field.name.includes('quantity')
+														? 'number'
+														: undefined
+												}
+												className={
+													'w-full p-3 border-b-gray-800 border border-solid'
+												}
+											/>
+											{fieldState.error && (
+												<span style={{ color: 'red' }}>
+													{fieldState.error.message}
+												</span>
+											)}
+										</label>
+										<div>
+											{product && product.price * field.value}
+										</div>
+									</>
+								);
+							})}
+							<Button
+								type={'submit'}
+								backgroundColor={ButtonColors.PRIMARY}
+								title={'В корзину'}
+							/>
+						</form>
+					)}
 				</div>
 			</div>
-			{/*{product && (*/}
-			{/*	<div>*/}
-			{/*		<div className={'text-center'}>{product.name}</div>*/}
-			{/*		<div className={'w-3/12 m-auto'}>*/}
-			{/*			<img*/}
-			{/*				src="https://images.wallpaperscraft.com/image/single/lake_mountain_tree_36589_2650x1600.jpg"*/}
-			{/*				alt=""*/}
-			{/*			/>*/}
-			{/*		</div>*/}
-			{/*		<div>*/}
-			{/*			<b>Описание товара: </b> {product.description}*/}
-			{/*		</div>*/}
-			{/*		<div>*/}
-			{/*			<b>Стоимость:</b> {product.price}р.*/}
-			{/*		</div>*/}
-			{/*		<form onSubmit={handleSubmit(onSubmit)}>*/}
-			{/*			<label*/}
-			{/*				className={*/}
-			{/*					'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-1/3'*/}
-			{/*				}*/}
-			{/*			>*/}
-			{/*				Количество:{' '}*/}
-			{/*				<input*/}
-			{/*					{...quantity}*/}
-			{/*					type={'number'}*/}
-			{/*					placeholder={'Введите количество товара'}*/}
-			{/*					className={*/}
-			{/*						'w-full p-3 border border-solid border-b-gray-800'*/}
-			{/*					}*/}
-			{/*				/>*/}
-			{/*				{quantityState.error && (*/}
-			{/*					<span style={{ color: 'red' }}>*/}
-			{/*						{quantityState.error.message}*/}
-			{/*					</span>*/}
-			{/*				)}*/}
-			{/*			</label>*/}
-			{/*			<button*/}
-			{/*				type={'submit'}*/}
-			{/*				disabled={!isValid}*/}
-			{/*				className={isValid ? 'bg-blue-700 text-white' : undefined}*/}
-			{/*			>*/}
-			{/*				Добавить в корзину*/}
-			{/*			</button>*/}
-			{/*		</form>*/}
-			{/*	</div>*/}
-			{/*)}*/}
 		</div>
 	);
 };

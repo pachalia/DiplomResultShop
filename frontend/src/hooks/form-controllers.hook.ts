@@ -7,7 +7,7 @@ import {
 	FieldValues,
 } from 'react-hook-form';
 
-type FieldConfig<T extends FieldValues> = {
+export type FieldConfig<T extends FieldValues> = {
 	// Добавляем ограничение FieldValues
 	name: Path<T>;
 	defaultValue?: PathValue<T, Path<T>>;

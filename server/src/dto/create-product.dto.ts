@@ -13,4 +13,6 @@ export class CreatePtoductDto {
 	@IsNotEmpty()
 	@IsString()
 	category: string;
+	@IsNotEmpty()
+	quantity: string;
 }

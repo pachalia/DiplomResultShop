@@ -35,6 +35,7 @@ export class ProductsService {
 					description: product.description,
 					image: image ? await this.imageToBase64(image.buffer) : null,
 					price: +product.price,
+					quantity: +product.quantity,
 					category_id: product.category,
 				},
 			});
