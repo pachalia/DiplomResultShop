@@ -12,7 +12,7 @@ export class CartService {
 		cart.length && store.dispatch(setCart(cart));
 	}
 
-	static async addProductToCart(productId: string, quantity: number) {
+	static async addProductToCart(productId: string, quantity: string) {
 		const cart = await axios
 			.post<ICart>(URL_API_CART, {
 				productId,

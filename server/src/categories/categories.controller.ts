@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { Public } from '@common/decorators';
+import { PaginationDto } from '../shared/pagination.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Public()
 @Controller('categories')
@@ -8,12 +10,19 @@ export class CategoriesController {
 	constructor(private categoryService: CategoriesService) {}
 
 	@Get()
-	getCategories() {
-		return this.categoryService.getCategory();
+	async getCategories(@Query() categoryPaginationDto: PaginationDto) {
+		const categoryPagination = plainToInstance(PaginationDto, categoryPaginationDto);
+		const [data, total] = await this.categoryService.getCategory(categoryPagination);
+		return { ...categoryPagination, data, total };
 	}
 
 	@Post()
-	createCategory(@Body() body: { name: string }) {
-		return this.categoryService.create(body.name);
+	async createCategory(@Body() body: { name: string }) {
+		return await this.categoryService.create(body.name);
+	}
+
+	@Delete(':id')
+	async deleteCategory(@Param('id') id: string) {
+		return await this.categoryService.deleteCategory(id);
 	}
 }

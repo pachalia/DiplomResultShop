@@ -8,12 +8,12 @@ import {
 	updateProduct,
 } from '../redux/features/slices/productSlice.ts';
 import { IProductsResponse } from '../responses/products.response.ts';
-import { IPagination } from '../interfaces/pagination.interface.ts';
+import { ICategoryPagination } from '../interfaces/pagination.interface.ts';
 import { IProduct } from '../interfaces/product.interface.ts';
 import { AddProductFormData } from '../inputConfigs';
 
 export class ProductService {
-	static async getProducts(pagination?: IPagination) {
+	static async getProducts(pagination?: ICategoryPagination) {
 		if (!pagination) {
 			const res = await axios.get<IProductsResponse>(URL_API_PRODUCTS);
 			store.dispatch(setProducts(res.data.data));

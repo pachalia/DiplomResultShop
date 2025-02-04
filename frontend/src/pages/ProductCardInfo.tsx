@@ -24,7 +24,7 @@ export const ProductCardInfo = () => {
 		navigate('/login');
 	};
 	const onSubmit = (data: AddProductToCartFormData) => {
-		id && CartService.addProductToCart(id, data.quantity);
+		id && CartService.addProductToCart(id, data.quantity.toString());
 	};
 	return (
 		<div className={'w-full'}>
@@ -84,7 +84,7 @@ export const ProductCardInfo = () => {
 											)}
 										</label>
 										<div>
-											{product && product.price * field.value}
+											{`Общая стоимость ${product && product.price * field.value}р.`}
 										</div>
 									</>
 								);

@@ -1,11 +1,10 @@
-import { CategoryService } from './services/category.service.ts';
-import { Routing } from './routing.tsx';
-import { UserService } from './services/user.service.ts';
+import { CategoryService } from './services';
+import { Routing } from './routing/routing.tsx';
+import { UserService } from './services';
 
 function App() {
 	CategoryService.getCategory();
 	UserService.getCurrentUser();
-
 	return (
 		<>
 			<Routing />

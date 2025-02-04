@@ -39,13 +39,13 @@ export const addProductFieldConfig: FieldConfig<AddProductFormData>[] = [
 		},
 	},
 	{
-		name: 'image',
-		defaultValue: null,
-	},
-	{
 		name: 'category',
 		rules: {
 			required: 'Поле обязательно',
 		},
+	},
+	{
+		name: 'image',
+		defaultValue: null,
 	},
 ];

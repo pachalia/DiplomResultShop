@@ -5,7 +5,6 @@ import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
 import { ProductService } from '../../../services';
 import { useAppSelector } from '../../../redux/hooks.ts';
 
-
 export const AddProduct: React.FC = () => {
 	const formMethods = useForm<AddProductFormData>({ mode: 'onChange' });
 	const controllers = useFormControllers(formMethods, addProductFieldConfig);
@@ -63,7 +62,12 @@ export const AddProduct: React.FC = () => {
 											? 'number'
 											: 'text'
 									}
-									value={field.value}
+									value={
+										typeof field.value === 'string' ||
+										typeof field.value === 'number'
+											? field.value
+											: ''
+									}
 									placeholder={
 										field.name === 'name'
 											? 'Введите название продукта'
@@ -81,7 +85,12 @@ export const AddProduct: React.FC = () => {
 								/>
 							) : (
 								<select
-									value={field.value}
+									value={
+										typeof field.value === 'string' ||
+										typeof field.value === 'number'
+											? field.value
+											: ''
+									}
 									onChange={(e) => field.onChange(e.target.value)}
 									onBlur={field.onBlur}
 								>

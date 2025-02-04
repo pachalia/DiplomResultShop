@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import { UserService } from '../services';
 import { loginFieldConfig, LoginFormData } from '../inputConfigs';
 import { useFormControllers } from '../hooks/form-controllers.hook.ts';
+import { NavLink } from 'react-router-dom';
+import { Button } from '../components';
 
 type FormData = {
 	email: string;
@@ -58,13 +60,16 @@ export const Login = () => {
 						disabled={!formMethods.formState.isValid}
 						className={
 							formMethods.formState.isValid
-								? 'bg-blue-700 text-white'
-								: undefined
+								? 'bg-blue-700 text-white mb-5'
+								: 'mb-5'
 						}
 					>
 						Войти
 					</button>
 				</form>
+				<NavLink to={'/register'} className={'mx-auto'}>
+					<Button title={'Регистрация'} />
+				</NavLink>
 			</div>
 		</>
 	);

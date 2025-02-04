@@ -3,14 +3,13 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { URL_API } from '../constans/url.constans.ts';
 import { setCart } from '../redux/features/slices/cartSlice.ts';
+import { CartService } from '../services';
 
 export const Cart = () => {
 	const dispatch = useAppDispatch();
 	const token = window.localStorage.getItem('token');
 	useEffect(() => {
-		axios
-			.get(`${URL_API}/cart`, { headers: { Authorization: token } })
-			.then((res) => dispatch(setCart(res.data)));
+		CartService.getCart();
 	}, []);
 	const { cart } = useAppSelector((state) => state.cart);
 
@@ -31,7 +30,7 @@ export const Cart = () => {
 	return (
 		<div>
 			<h1 className={'text-center mb-10'}>Корзина</h1>
-			{cart &&
+			{cart.length &&
 				cart.map((val) => (
 					<div
 						key={val.id}

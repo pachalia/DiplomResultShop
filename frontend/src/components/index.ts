@@ -5,3 +5,6 @@ export * from './category/category.tsx';
 export * from './layouts/layout.tsx';
 export * from './productTableForAdmin/productTableForAdmin.tsx';
 export * from './UI/button/index.ts';
+export * from './layouts/general.layout.tsx';
+export * from './layouts/admin.layout.tsx';
+export * from './layouts/user.layout.tsx';

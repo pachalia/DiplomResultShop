@@ -1,57 +1,47 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks.ts';
-import { setUser } from '../../redux/features/slices/userSlice.ts';
-import axios from 'axios';
-import { URL_API } from '../../constans/url.constans.ts';
+import { NavLink } from 'react-router-dom';
+import { IUser } from '../../interfaces/user.interface.ts';
+import { Menu } from '../../../types/menu.type.ts';
 
-export const Layout = () => {
-	const user = useAppSelector((state) => state.user.current_user);
-	const dispatch = useAppDispatch();
-	const navigate = useNavigate();
-	const clickHandler = () => {
-		axios.get(`${URL_API}/auth/logout`).then(() => {
-			dispatch(setUser(null));
-			navigate('/');
-		});
-	};
+interface LayoutProps {
+	title: string;
+	user: IUser | null;
+	menuItems: Menu[];
+	onLogout?: () => void;
+	margin?: boolean;
+}
+export const Layout: React.FC<LayoutProps> = ({
+	title,
+	menuItems,
+	user,
+	onLogout,
+	margin,
+}) => {
 	return (
-		<>
-			<div className={'w-10/12 m-auto'}>
-				<header className={'h-8'}>
-					<div className={'flex bg-green-500 justify-between'}>
-						<div className={'text-white text-2xl pl-3'}>
-							Магазин Васи Пупкина
+		<div className={`${margin ? 'h8 mb-5' : 'h-8'}`}>
+			<div className={'bg-green-500 flex'}>
+				<div className={'text-white text-2xl pl-3'}>{title}</div>
+				<div
+					className={
+						'flex text-amber-400 text-2xl w-6/12 justify-between m-auto'
+					}
+				>
+					{menuItems.map((val) => (
+						<NavLink end key={val.path} to={val.path}>
+							{val.name}
+						</NavLink>
+					))}
+					{onLogout && user && (
+						<div className={'cursor-pointer'} onClick={onLogout}>
+							Выход
 						</div>
-						<div
-							className={
-								'flex text-amber-400 text-2xl w-6/12 justify-between'
-							}
-						>
-							<NavLink to={'/'}>Главная</NavLink>
-							<NavLink to={'/about'}>О нас</NavLink>
-							{!user && <NavLink to={'/register'}>Регистрация</NavLink>}
-							{!user && <NavLink to={'/login'}>Логин</NavLink>}
-							{user && <NavLink to={'/cart'}>Корзина</NavLink>}
-							{user?.role === 'ADMIN' && (
-								<NavLink to={'/admin'}>Admin</NavLink>
-							)}
-							{user && (
-								<div className={'cursor-pointer'} onClick={clickHandler}>
-									Выход
-								</div>
-							)}
-						</div>
-						{user && (
-							<div
-								className={'text-white text-xl'}
-							>{`${user.email}/${user.role}`}</div>
-						)}
-					</div>
-				</header>
-				<div className={'flex bg-amber-50 h-screen'}>
-					<Outlet />
+					)}
 				</div>
+				{onLogout && user && (
+					<div className={'text-white text-xl'}>
+						{`${user.email}/${user.role}`}
+					</div>
+				)}
 			</div>
-		</>
+		</div>
 	);
 };

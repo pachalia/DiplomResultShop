@@ -1,6 +1,6 @@
 import { Card } from '../components';
 import { useAppSelector } from '../redux/hooks.ts';
-import { ProductService } from '../services/product.service.ts';
+import { ProductService } from '../services';
 import { useEffect, useState } from 'react';
 import { Order } from '../../types/order.type.ts';
 

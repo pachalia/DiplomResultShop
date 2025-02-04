@@ -16,8 +16,8 @@ import { CreatePtoductDto } from '../dto/create-product.dto';
 import { Public } from '@common/decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { plainToInstance } from 'class-transformer';
-import { PaginationDto } from '../shared/pagination.dto';
 import { Product } from '@prisma/client';
+import { CategoryPaginationDto } from '../shared/category-pagination.dto';
 
 @Public()
 @Controller('products')
@@ -37,8 +37,11 @@ export class ProductsController {
 	}
 
 	@Get()
-	async getProducts(@Query() productPaginationDto: PaginationDto) {
-		const productPagination = plainToInstance(PaginationDto, productPaginationDto);
+	async getProducts(@Query() productPaginationDto: CategoryPaginationDto) {
+		const productPagination = plainToInstance(
+			CategoryPaginationDto,
+			productPaginationDto,
+		);
 		const [data, total] = await this.productService.getProducts(productPagination);
 		return { ...productPagination, data, total };
 	}

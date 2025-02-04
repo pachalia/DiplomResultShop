@@ -1,5 +1,5 @@
 export * from './About.tsx';
-export * from './Admin.tsx';
+export * from './Admin/Admin.tsx';
 export * from './Cart.tsx';
 export * from './Home.tsx';
 export * from './Login.tsx';

@@ -4,12 +4,12 @@ import {
 	Logger,
 	NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 import { CreatePtoductDto } from '../dto/create-product.dto';
 import { Product } from '@prisma/client';
 import { SharpService } from 'nestjs-sharp';
-import { PaginationDto } from '../shared/pagination.dto';
 import { plainToInstance } from 'class-transformer';
+import { CategoryPaginationDto } from '../shared/category-pagination.dto';
 
 @Injectable()
 export class ProductsService {
@@ -52,13 +52,15 @@ export class ProductsService {
 			.catch((e: Error) => this.logger.error(e.message));
 	}
 
-	async getProducts(productPagination: PaginationDto): Promise<[Product[], number]> {
+	async getProducts(
+		productPagination: CategoryPaginationDto,
+	): Promise<[Product[], number]> {
 		const {
 			category,
 			order,
 			offset: skip,
 			limit: take,
-		} = plainToInstance(PaginationDto, productPagination);
+		} = plainToInstance(CategoryPaginationDto, productPagination);
 		let products = [];
 		let count: number = 0;
 		if (!category) {
@@ -71,7 +73,6 @@ export class ProductsService {
 			return [products, count];
 		}
 		if (order && order !== 'asc' && order !== 'desc') {
-			console.log(1);
 			throw new BadRequestException(
 				`Нужно указать 'asc' или 'desc'. У вас указан '${order}'`,
 			);

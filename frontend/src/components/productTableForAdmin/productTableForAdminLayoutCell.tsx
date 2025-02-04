@@ -1,5 +1,5 @@
 import { IProduct } from '../../interfaces/product.interface.ts';
-import { ProductService } from '../../services/product.service.ts';
+import { ProductService } from '../../services';
 
 interface EditState {
 	isEditing: boolean;
