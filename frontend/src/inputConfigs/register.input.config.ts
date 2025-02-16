@@ -24,7 +24,7 @@ export const registerFieldConfig = (
 			defaultValue: '',
 			rules: {
 				required: 'Поле обязательно',
-				minLength: { value: 6, message: 'Минимальное количество 8 символов' },
+				minLength: { value: 6, message: 'Минимальное количество 6 символов' },
 			},
 		},
 		{

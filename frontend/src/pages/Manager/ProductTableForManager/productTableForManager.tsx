@@ -1,7 +1,7 @@
-import { useAppSelector } from '../../redux/hooks.ts';
-import { useState } from 'react';
-import { ProductTableForAdminLayout } from './productTableForAdminLayout.tsx';
-import { ProductService } from '../../services/product.service.ts';
+import { useAppSelector } from '@redux';
+import { useEffect, useState } from 'react';
+import { ProductTableForManagerLayout } from './productTableForManagerLayout.tsx';
+import { ProductService } from '@services';
 
 const lineTable: string[] = [
 	'№',
@@ -13,7 +13,7 @@ const lineTable: string[] = [
 	'Удалить',
 ];
 
-export const ProductTableForAdmin = () => {
+export const ProductTableForManager = () => {
 	const { products } = useAppSelector((state) => state.product);
 	const [editStates, setEditStates] = useState<{
 		[key: string]: { isEditing: boolean; price: number };
@@ -25,6 +25,9 @@ export const ProductTableForAdmin = () => {
 			[id]: { isEditing: true, price: price },
 		}));
 	};
+	useEffect(() => {
+		ProductService.getProducts();
+	}, []);
 
 	const handlePriceChange = (id: string, newPrice: number) => {
 		setEditStates((prev) => ({
@@ -43,8 +46,8 @@ export const ProductTableForAdmin = () => {
 
 	return (
 		<>
-			{products.length && (
-				<ProductTableForAdminLayout
+			{products.length ? (
+				<ProductTableForManagerLayout
 					lineTable={lineTable}
 					products={products}
 					clickHandler={clickHandler}
@@ -52,6 +55,8 @@ export const ProductTableForAdmin = () => {
 					handleSavePrice={handleSavePrice}
 					editStates={editStates}
 				/>
+			) : (
+				<div></div>
 			)}
 		</>
 	);

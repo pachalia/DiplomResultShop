@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { IUser } from '../../interfaces/user.interface.ts';
+import { IUser } from '@interfaces';
 import { Menu } from '../../../types/menu.type.ts';
 
 interface LayoutProps {
@@ -37,9 +37,9 @@ export const Layout: React.FC<LayoutProps> = ({
 					)}
 				</div>
 				{onLogout && user && (
-					<div className={'text-white text-xl'}>
+					<NavLink to={'/address'} className={'text-white text-xl'}>
 						{`${user.email}/${user.role}`}
-					</div>
+					</NavLink>
 				)}
 			</div>
 		</div>

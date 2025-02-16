@@ -130,6 +130,19 @@ export class UserService {
 		return _user;
 	}
 
+	async findUsers(email: string) {
+		const users = await this.prismaService.user.findMany({
+			where: { email: { contains: email, mode: 'insensitive' } },
+		});
+		return users.map((val) => {
+			return {
+				id: val.id,
+				email: val.email,
+				role: val.role,
+			};
+		});
+	}
+
 	private hashPassword(password: string) {
 		return hashSync(password, genSaltSync(10));
 	}

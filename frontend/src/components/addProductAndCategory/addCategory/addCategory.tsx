@@ -1,22 +1,25 @@
-import { useAppSelector } from '../../../redux/hooks.ts';
 import { useForm } from 'react-hook-form';
-import { CategoryService } from '../../../services';
+import { CategoryService, Message } from '@services';
 import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
-import {
-	AddCategoryFieldConfig,
-	AddCategoryFormData,
-} from '../../../inputConfigs/add.category.input.config.ts';
+import { AddCategoryFieldConfig, AddCategoryFormData } from '@inputs';
+import { Button } from '../../UI/button';
+import { AxiosError } from 'axios';
 
 export const AddCategory = () => {
-	const { current_user } = useAppSelector((state) => state.user);
 	const formMethods = useForm<AddCategoryFormData>({ mode: 'onChange' });
 	const controllers = useFormControllers(formMethods, AddCategoryFieldConfig);
 
 	const onSubmit = (data: AddCategoryFormData) => {
-		if (current_user?.role === 'ADMIN') {
-			CategoryService.addCategory(data.category);
-			formMethods.reset();
-		}
+		CategoryService.addCategory(data.category)
+			.then(() => {
+				Message.success('Категория добавлена');
+				formMethods.reset();
+			})
+			.catch((e: AxiosError) =>
+				e.status === 409
+					? Message.danger('Такая категория уже существует')
+					: Message.danger(e.message),
+			);
 	};
 	return (
 		<>
@@ -28,11 +31,11 @@ export const AddCategory = () => {
 							'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-full'
 						}
 					>
-						{field.name === 'category' && 'Категория:'}
+						{field.name === 'category' && 'Добавить категорию:'}
 
 						<input
 							{...field}
-							placeholder={'Введите категорию'}
+							placeholder={'Введите категорию для добавления'}
 							type={'text'}
 							className={'w-full p-3 border-b-gray-800 border border-solid'}
 						/>
@@ -43,17 +46,10 @@ export const AddCategory = () => {
 						)}
 					</label>
 				))}
-				<button
-					type={'submit'}
-					disabled={!formMethods.formState.isValid}
-					className={
-						formMethods.formState.isValid
-							? 'bg-blue-700 text-white'
-							: undefined
-					}
-				>
-					Отправить
-				</button>
+				{formMethods.formState.isValid && (
+					<Button type={'submit'} title={'Отправить'} />
+				)}
+				<div className={'m-auto'}></div>
 			</form>
 		</>
 	);

@@ -22,11 +22,6 @@ import { plainToInstance } from 'class-transformer';
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	// @Post()
-	// createUser(@Body() dto) {
-	// 	return this.userService.save(dto);
-	// }
-
 	@Get()
 	async getUsers(@Query() usersPaginationDto: PaginationDto) {
 		const usersPagination = plainToInstance(PaginationDto, usersPaginationDto);
@@ -40,7 +35,7 @@ export class UserController {
 
 	@Get(':idOrEmail')
 	async findUser(@Param('idOrEmail') idOrEmail: string) {
-		return await this.userService.findOne(idOrEmail);
+		return await this.userService.findUsers(idOrEmail);
 	}
 
 	@Delete(':id')

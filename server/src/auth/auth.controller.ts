@@ -46,6 +46,7 @@ export class AuthController {
 			);
 		}
 		await this.authService.registerCart(user.id);
+		await this.authService.registerAddress(user.id);
 		const tokens = await this.authService.generateTokens(user, agent);
 		await this.authService.cookieAuthAndRefresh(tokens, res);
 		res.json({ id: tokens.id, email: tokens.email, role: tokens.role });

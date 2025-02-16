@@ -1,28 +1,31 @@
-import { ProductTableForAdminLayoutCell } from './productTableForAdminLayoutCell.tsx';
-import { IProduct } from '../../interfaces/product.interface.ts';
+import { CategoryTableForAdminLayoutCell } from './categoryTableForAdminLayoutCell.tsx';
 
 interface EditState {
 	isEditing: boolean;
-	price: number;
+	category: string;
 }
 interface EditStates {
 	[key: string]: EditState; // Ключи - строки, значения - объекты типа EditState
 }
-interface IProductTableForAdminLayout {
+
+interface ICategoryTableForAdminLayout {
 	lineTable: string[];
-	products: IProduct[];
-	clickHandler: (id: string, price: number) => void;
-	handlePriceChange: (id: string, newPrice: number) => void;
-	handleSavePrice: (id: string) => void;
+	category: string[];
+	clickHandler: (id: string) => void;
+	handleCategoryChange: (id: string, category: string) => void;
+	handleSaveCategory: (id: string) => void;
 	editStates: EditStates;
+	setEditStates: React.Dispatch<React.SetStateAction<EditStates>>;
 }
-export const ProductTableForAdminLayout: React.FC<IProductTableForAdminLayout> = ({
-	products,
-	handlePriceChange,
-	handleSavePrice,
+
+export const CategoryTableForAdminLayout: React.FC<ICategoryTableForAdminLayout> = ({
 	lineTable,
-	clickHandler,
+	category,
 	editStates,
+	handleCategoryChange,
+	handleSaveCategory,
+	clickHandler,
+	setEditStates,
 }) => {
 	return (
 		<div className={'w-full flex items-center flex-col'}>
@@ -31,8 +34,6 @@ export const ProductTableForAdminLayout: React.FC<IProductTableForAdminLayout> =
 					width: '90%',
 					margin: '0 auto',
 					marginBottom: 40,
-					position: 'relative',
-					top: '30%',
 				}}
 			>
 				<thead>
@@ -51,20 +52,21 @@ export const ProductTableForAdminLayout: React.FC<IProductTableForAdminLayout> =
 					</tr>
 				</thead>
 				<tbody>
-					{products.map((val, i) => {
-						const editState = editStates[val.id] || {
+					{category.map((val, i) => {
+						const editState = editStates[val] || {
 							isEditing: false,
-							price: val.price,
+							category: val,
 						};
 						return (
-							<ProductTableForAdminLayoutCell
-								key={val.id}
+							<CategoryTableForAdminLayoutCell
+								key={val}
 								value={val}
 								index={i}
 								editState={editState}
-								handlePriceChange={handlePriceChange}
-								handleSavePrice={handleSavePrice}
+								handleCategoryChange={handleCategoryChange}
+								handleSaveCategory={handleSaveCategory}
 								clickHandler={clickHandler}
+								setEditStates={setEditStates}
 							/>
 						);
 					})}

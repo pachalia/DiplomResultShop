@@ -6,3 +6,6 @@ export * from './Login.tsx';
 export * from './NotFound.tsx';
 export * from './ProductCardInfo.tsx';
 export * from './Register.tsx';
+export * from './Admin/Category/AdminCategory.tsx';
+export * from './Admin/Admin.tsx';
+export * from './Admin/Users/Users.tsx';

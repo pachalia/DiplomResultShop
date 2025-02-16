@@ -1,50 +1,58 @@
 import axios, { AxiosError } from 'axios';
 import { URL_API } from '../constans/url.constans.ts';
-import { store } from '../redux/store.ts';
-import { setUser } from '../redux/features/slices/userSlice.ts';
-import { IUser } from '../interfaces/user.interface.ts';
-import { IPagination } from '../interfaces/pagination.interface.ts';
+import { setLoginMessage, setRegisterMessage, setUser, store } from '@redux';
+import { IPagination, IUser } from '@interfaces';
 import { PaginationResponse } from '../responses/pagination.response.ts';
+import { Message } from './message.service.ts';
+import { AddressFormData } from '../inputConfigs/address.input.config.ts';
+import { IAddress } from '../interfaces/address.interface.ts';
 
 export class UserService {
-	static async getCurrentUser() {
-		const user = await axios
+	static getCurrentUser() {
+		axios
 			.get<IUser>(`${URL_API}/auth/current-user`)
+			.then((res) => store.dispatch(setUser(res.data)))
 			.catch((e: AxiosError) => {
 				console.log(e.message);
 				return null;
 			});
-		store.dispatch(setUser(!user ? null : user.data));
 	}
 
-	static async loginUser(email: string, password: string) {
-		const user = await axios
+	static loginUser(email: string, password: string) {
+		return axios
 			.post<IUser>(`${URL_API}/auth/login`, {
 				email,
 				password,
 			})
+			.then((res) => res.data)
 			.catch((e: AxiosError) => {
-				console.log(e.message);
+				if (e.status === 401)
+					store.dispatch(setLoginMessage('Неверный логин или пароль'));
 				return null;
 			});
-		store.dispatch(setUser(!user ? null : user.data));
 	}
 
-	static async registerUser(email: string, password: string, passwordRepeat: string) {
-		const user = await axios
+	static async registerUser(
+		email: string,
+		password: string,
+		passwordRepeat: string,
+	): Promise<IUser | null> {
+		return await axios
 			.post<IUser>(`${URL_API}/auth/register`, {
 				email,
 				password,
 				passwordRepeat,
 			})
+			.then((res) => res.data)
 			.catch((e: AxiosError) => {
 				if (e.status === 409) {
-					console.log('Такой пользователь уже зарегестрирован');
+					store.dispatch(
+						setRegisterMessage('Такой пользователь уже зарегистрирован'),
+					);
 					return null;
 				}
 				return null;
 			});
-		store.dispatch(setUser(!user ? null : user.data));
 	}
 
 	static async getUsers(
@@ -66,8 +74,51 @@ export class UserService {
 	}
 
 	static async logout() {
-		await axios
+		return await axios
 			.get(`${URL_API}/auth/logout`)
-			.then(() => store.dispatch(setUser(null)));
+			.then(() => true)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return false;
+			});
+	}
+
+	static async getUsersRole(): Promise<string[]> {
+		return await axios
+			.get<string[]>(`${URL_API}/user/role`)
+			.then((res) => res.data)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return [];
+			});
+	}
+
+	static async findUsersByEmail(email: string): Promise<IUser[] | null> {
+		return await axios
+			.get<IUser[]>(`${URL_API}/user/${email}`)
+			.then((res) => res.data)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return null;
+			});
+	}
+
+	static async updateAddress(data: AddressFormData) {
+		return await axios
+			.put<IAddress>(`${URL_API}/address`, data)
+			.then((res) => res.data)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return null;
+			});
+	}
+	static async getAddress() {
+		return await axios
+			.get<IAddress>(`${URL_API}/address`)
+			.then((res) => res.data)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return null;
+			});
 	}
 }

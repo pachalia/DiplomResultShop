@@ -71,7 +71,7 @@ export const Button: React.FC<IButtonProps> = ({
 		<button
 			type={type}
 			disabled={disabled}
-			className={`${arbitraryHeight} ${arbitraryWidth} ${rounded} font-bold py-1 px-4 transition-all ease-in-out`}
+			className={`${arbitraryHeight} ${arbitraryWidth} ${rounded} font-bold py-1 px-4 transition-all ease-in-out block m-auto`}
 			style={buttonStyle}
 			onClick={onClick}
 			onMouseEnter={handleMouseEnter}

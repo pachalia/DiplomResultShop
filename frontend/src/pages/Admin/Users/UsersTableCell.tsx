@@ -1,5 +1,7 @@
-import { Button } from '../../../components';
-import { IUser } from '../../../interfaces/user.interface.ts';
+import { Button } from '@components';
+import { IUser } from '@interfaces';
+import { Modal } from '../../../components/modal/modal.tsx';
+import { useState } from 'react';
 
 interface EditState {
 	isEditing: boolean;
@@ -27,81 +29,118 @@ export const UsersTableCell: React.FC<UsersTableCellProps> = ({
 	setEditStates,
 	deleteUser,
 }) => {
+	const [modal, setModal] = useState<{ id: string; isModal: boolean } | null>(null);
 	return (
-		<tbody>
-			{users.map((val, index) => {
-				const editState = editStates[val.id] || {
-					isEditing: false,
-					role: val.role,
-				};
-				return (
-					<tr key={val.id}>
-						<td className={'border border-solid border-gray-500 text-center'}>
-							{index + 1}
-						</td>
-						<td className={'border border-solid border-gray-500 text-center'}>
-							{val.email}
-						</td>
-						<td className={'border border-solid border-gray-500 text-center'}>
-							{editState.isEditing ? (
-								<div>
-									<select
-										value={editState.role}
-										onChange={(e) => {
-											setEditStates((prev) => ({
-												...prev,
-												[val.id]: {
-													...prev[val.id],
-													role: e.target.value,
-												},
-											}));
-										}}
-									>
-										{roles.map((role) => (
-											<option key={role} value={role}>
-												{role}
-											</option>
-										))}
-									</select>
+		<>
+			{modal?.isModal && (
+				<div>
+					<Modal
+						message={'Удалить пользователя?'}
+						callback={() => deleteUser(modal?.id)}
+						setModal={setModal}
+					/>
+				</div>
+			)}
+			<tbody>
+				{users.map((val, index) => {
+					const editState = editStates[val.id] || {
+						isEditing: false,
+						role: val.role,
+					};
+					return (
+						<tr key={val.id}>
+							<td
+								className={
+									'border border-solid border-gray-500 text-center'
+								}
+							>
+								{index + 1}
+							</td>
+							<td
+								className={
+									'border border-solid border-gray-500 text-center'
+								}
+							>
+								{val.email}
+							</td>
+							<td
+								className={
+									'border border-solid border-gray-500 text-center'
+								}
+							>
+								{editState.isEditing && roles.length ? (
 									<div>
-										<button
-											onClick={() =>
-												handleRoleChange(val.id, editState.role)
-											}
-										>
-											Сохранить
-										</button>
-										<button
-											onClick={() => {
+										<select
+											value={editState.role}
+											onChange={(e) => {
 												setEditStates((prev) => ({
 													...prev,
 													[val.id]: {
 														...prev[val.id],
-														isEditing: false,
+														role: e.target.value,
 													},
 												}));
 											}}
 										>
-											Отмена
-										</button>
+											{roles.map((role) => (
+												<option key={role} value={role}>
+													{role}
+												</option>
+											))}
+										</select>
+										<div className={'flex justify-between'}>
+											<Button
+												onClick={() =>
+													handleRoleChange(
+														val.id,
+														editState.role,
+													)
+												}
+												title={'Сохранить'}
+											/>
+
+											<Button
+												onClick={() => {
+													setEditStates((prev) => ({
+														...prev,
+														[val.id]: {
+															...prev[val.id],
+															isEditing: false,
+														},
+													}));
+												}}
+												title={'Отмена'}
+											/>
+										</div>
 									</div>
-								</div>
-							) : (
-								<div className={'flex justify-between'}>
-									{val.role}
-									<Button
-										onClick={() => handleEditClick(val.id, val.role)}
-										title={'Редактировать'}
-									/>
-								</div>
-							)}
-						</td>
-						<td className={'border border-solid border-gray-500 text-center'}>
-							<button onClick={() => deleteUser(val.id)}>Удалить</button>
-						</td>
-					</tr>
-				);
-			})}
-		</tbody>
+								) : (
+									<div className={'flex justify-between'}>
+										{val.role}
+										<Button
+											onClick={() =>
+												handleEditClick(val.id, val.role)
+											}
+											title={'Редактировать'}
+										/>
+									</div>
+								)}
+							</td>
+							<td
+								className={
+									'border border-solid border-gray-500 text-center'
+								}
+							>
+								<Button
+									onClick={() =>
+										setModal({ isModal: true, id: val.id })
+									}
+									title={'Удалить'}
+								/>
+							</td>
+						</tr>
+					);
+				})}
+			</tbody>
+		</>
 	);
 };

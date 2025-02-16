@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@auth/guargs/jwt-auth.guard';
 import { CartModule } from './cart/cart.module';
 import { AuthMiddleware } from '@auth/middlewares/auth.middleware';
+import { AddressModule } from './address/address.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { AuthMiddleware } from '@auth/middlewares/auth.middleware';
 		UserModule,
 		AuthModule,
 		CartModule,
+		AddressModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

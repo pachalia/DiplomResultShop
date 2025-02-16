@@ -1,5 +1,5 @@
-import { IProduct } from '../../interfaces/product.interface.ts';
-import { ProductService } from '../../services';
+import { IProduct } from '@interfaces';
+import { ProductService } from '@services';
 
 interface EditState {
 	isEditing: boolean;
@@ -19,7 +19,7 @@ const deleteClickHandler = (id: string) => {
 	ProductService.deleteProducts(id);
 };
 
-export const ProductTableForAdminLayoutCell: React.FC<
+export const ProductTableForManagerLayoutCell: React.FC<
 	ProductTableForAdminLayoutCellProps
 > = ({ value, index, editState, handleSavePrice, handlePriceChange, clickHandler }) => {
 	return (

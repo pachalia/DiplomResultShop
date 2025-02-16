@@ -1,16 +1,32 @@
 import { useForm } from 'react-hook-form';
-import { UserService } from '../services/user.service.ts';
-import {
-	registerFieldConfig,
-	RegisterFormData,
-} from '../inputConfigs/register.input.config.ts';
+import { UserService } from '@services';
+import { registerFieldConfig, RegisterFormData } from '@inputs';
 import { useFormControllers } from '../hooks/form-controllers.hook.ts';
+import { useAppDispatch, useAppSelector, setRegisterMessage, setUser } from '@redux';
+import { Button } from '@components';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
 	const formMethods = useForm<RegisterFormData>({ mode: 'onChange' });
 	const controllers = useFormControllers(formMethods, registerFieldConfig(formMethods));
+	const message = useAppSelector((state) => state.message.registerMessage);
+	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+	useEffect(() => {
+		dispatch(setRegisterMessage(null));
+	}, []);
 	const onSubmit = (data: RegisterFormData) => {
-		UserService.registerUser(data.email, data.password, data.password_repeat);
+		UserService.registerUser(
+			data.email.trim().toLowerCase(),
+			data.password.trim(),
+			data.password_repeat.trim(),
+		).then((res) => {
+			dispatch(setUser(res));
+			res?.role === 'ADMIN' && navigate('/admin');
+			res?.role === 'MANAGER' && navigate('/manager');
+			res?.role === 'CUSTOMER' && navigate('/');
+		});
 	};
 	return (
 		<div className={'flex flex-col w-full relative top-1/4 right-10'}>
@@ -48,18 +64,11 @@ export const Register = () => {
 						)}
 					</label>
 				))}
-				<button
-					type={'submit'}
-					disabled={!formMethods.formState.isValid}
-					className={
-						formMethods.formState.isValid
-							? 'bg-blue-700 text-white'
-							: undefined
-					}
-				>
-					Зарегистрироваться
-				</button>
-				{/*{message && <span style={{ color: 'red' }}>{message}</span>}*/}
+				{formMethods.formState.isValid && (
+					<Button type={'submit'} title={'Зарегестрироваться'} />
+				)}
+
+				{message && <span style={{ color: 'red' }}>{message}</span>}
 			</form>
 		</div>
 	);

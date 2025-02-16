@@ -1,12 +1,18 @@
 import { Layout } from './layout.tsx';
 import { MENU } from '../../constans/menu.constant.ts';
-import { useAppSelector } from '../../redux/hooks.ts';
-import { UserService } from '../../services';
+import { useAppDispatch, useAppSelector, setUser } from '@redux';
+import { UserService } from '@services';
+import { useNavigate } from 'react-router-dom';
 
 export const UserLayout = () => {
 	const user = useAppSelector((state) => state.user.current_user);
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 	const clickHandler = () => {
-		UserService.logout();
+		UserService.logout().then((res) => {
+			dispatch(setUser(null));
+			res && navigate('/');
+		});
 	};
 	return (
 		<Layout

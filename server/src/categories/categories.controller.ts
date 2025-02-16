@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { Public } from '@common/decorators';
 import { PaginationDto } from '../shared/pagination.dto';
@@ -19,6 +19,13 @@ export class CategoriesController {
 	@Post()
 	async createCategory(@Body() body: { name: string }) {
 		return await this.categoryService.create(body.name);
+	}
+
+	@Put()
+	async updateCategory(
+		@Body() body: { id: string; category: string },
+	): Promise<{ name: string }> {
+		return await this.categoryService.updateCategory(body.id, body.category);
 	}
 
 	@Delete(':id')

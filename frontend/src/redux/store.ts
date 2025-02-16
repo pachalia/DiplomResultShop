@@ -1,8 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { productReducer } from './features/slices/productSlice.ts';
-import { categoryReducer } from './features/slices/categorySlice.ts';
-import { userReducer } from './features/slices/userSlice.ts';
-import { cartReducer } from './features/slices/cartSlice.ts';
+import {
+	productReducer,
+	messageReducer,
+	cartReducer,
+	userReducer,
+	categoryReducer,
+} from './features';
 
 export const store = configureStore({
 	reducer: {
@@ -10,6 +13,7 @@ export const store = configureStore({
 		category: categoryReducer,
 		user: userReducer,
 		cart: cartReducer,
+		message: messageReducer,
 	},
 	devTools: true,
 });

@@ -1,6 +1,6 @@
-import { Card } from '../components';
-import { useAppSelector } from '../redux/hooks.ts';
-import { ProductService } from '../services';
+import { Card } from '@components';
+import { useAppSelector } from '@redux';
+import { ProductService } from '@services';
 import { useEffect, useState } from 'react';
 import { Order } from '../../types/order.type.ts';
 
@@ -32,17 +32,18 @@ export const Home: React.FC = () => {
 		<div className={'flex bg-amber-50 w-10/12'}>
 			<div className={'w-1/12'}></div>
 			<div className={'flex flex-col w-full items-center'}>
-				<button onClick={clickHandler}>{button}</button>
-				{products &&
-					products.map((val) => (
-						<Card
-							key={val.id}
-							id={val.id}
-							price={val.price}
-							name={val.name}
-							image={val.image}
-						/>
-					))}
+				{products.length ? <button onClick={clickHandler}>{button}</button> : ''}
+				{products.length
+					? products.map((val) => (
+							<Card
+								key={val.id}
+								id={val.id}
+								price={val.price}
+								name={val.name}
+								image={val.image}
+							/>
+						))
+					: ''}
 			</div>
 		</div>
 	);

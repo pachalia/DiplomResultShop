@@ -1,9 +1,11 @@
 import { useForm } from 'react-hook-form';
-import { UserService } from '../services';
-import { loginFieldConfig, LoginFormData } from '../inputConfigs';
+import { UserService } from '@services';
+import { loginFieldConfig, LoginFormData } from '@inputs';
 import { useFormControllers } from '../hooks/form-controllers.hook.ts';
-import { NavLink } from 'react-router-dom';
-import { Button } from '../components';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Button } from '@components';
+import { useAppDispatch, useAppSelector, setLoginMessage, setUser } from '@redux';
+import { useEffect } from 'react';
 
 type FormData = {
 	email: string;
@@ -13,9 +15,23 @@ type FormData = {
 export const Login = () => {
 	const formMethods = useForm<LoginFormData>({ mode: 'onChange' });
 	const controllers = useFormControllers(formMethods, loginFieldConfig);
+	const message = useAppSelector((state) => state.message.loginMessage);
+	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		dispatch(setLoginMessage(null));
+	}, []);
 
 	const onSubmit = (data: FormData) => {
-		UserService.loginUser(data.email, data.password);
+		UserService.loginUser(data.email.trim().toLowerCase(), data.password.trim()).then(
+			(res) => {
+				dispatch(setUser(res));
+				res?.role === 'ADMIN' && navigate('/admin');
+				res?.role === 'MANAGER' && navigate('/manager');
+				res?.role === 'CUSTOMER' && navigate('/');
+			},
+		);
 	};
 	return (
 		<>
@@ -55,19 +71,15 @@ export const Login = () => {
 							)}
 						</label>
 					))}
-					<button
+					<Button
 						type={'submit'}
+						title={'Войти'}
 						disabled={!formMethods.formState.isValid}
-						className={
-							formMethods.formState.isValid
-								? 'bg-blue-700 text-white mb-5'
-								: 'mb-5'
-						}
-					>
-						Войти
-					</button>
+					/>
+
+					{message && <span style={{ color: 'red' }}>{message}</span>}
 				</form>
-				<NavLink to={'/register'} className={'mx-auto'}>
+				<NavLink to={'/register'} className={'mx-auto mt-12'}>
 					<Button title={'Регистрация'} />
 				</NavLink>
 			</div>

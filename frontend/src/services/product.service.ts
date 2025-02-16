@@ -1,16 +1,10 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { URL_API_PRODUCTS } from '../constans/url.constans.ts';
-import { store } from '../redux/store.ts';
-import {
-	addProduct,
-	deleteProduct,
-	setProducts,
-	updateProduct,
-} from '../redux/features/slices/productSlice.ts';
+import { deleteProduct, setProducts, updateProduct, store } from '@redux';
 import { IProductsResponse } from '../responses/products.response.ts';
-import { ICategoryPagination } from '../interfaces/pagination.interface.ts';
-import { IProduct } from '../interfaces/product.interface.ts';
-import { AddProductFormData } from '../inputConfigs';
+import { ICategoryPagination, IProduct } from '@interfaces';
+import { AddProductFormData } from '@inputs';
+import { Message } from './message.service.ts';
 
 export class ProductService {
 	static async getProducts(pagination?: ICategoryPagination) {
@@ -59,8 +53,13 @@ export class ProductService {
 		formData.append('quantity', data.quantity.toString());
 		formData.append('category', data.category);
 		formData.append('image', data.image as Blob);
-		const product = await axios.post<IProduct>(URL_API_PRODUCTS, formData);
-		store.dispatch(addProduct(product.data));
+		return await axios
+			.post<IProduct>(URL_API_PRODUCTS, formData)
+			.then((res) => res.data)
+			.catch((e: AxiosError) => {
+				Message.danger(e.message);
+				return null;
+			});
 	}
 
 	static async getProductById(id: string): Promise<IProduct> {

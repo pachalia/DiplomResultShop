@@ -17,6 +17,8 @@ model User {
     role      Role
     token     Token[]
     carts     Cart?
+    address   Address?
+    orders    Order[]
 
     @@map("users")
 }
@@ -39,15 +41,16 @@ model Category {
 }
 
 model Product {
-    id          String    @id @default(uuid())
+    id          String      @id @default(uuid())
     name        String
     description String?
     price       Float
     quantity    Float?
     image       String?
     category_id String
-    category    Category  @relation(fields: [category_id], references: [name], onDelete: Cascade)
+    category    Category    @relation(fields: [category_id], references: [name], onDelete: Cascade)
     cartsItem   CartItem?
+    orderItems  OrderItem[]
 
     @@map("products")
 }
@@ -74,10 +77,54 @@ model CartItem {
     @@map("carts_item")
 }
 
+model Address {
+    id      String @id @default(uuid())
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId  String @unique @map("user_id")
+    city    String
+    state   String
+    street  String
+    zipCode String @map("zip_code")
+    phone   String
+
+    @@map("address")
+}
+
+model Order {
+    id         String      @id @default(uuid())
+    user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId     String      @map("user_id")
+    orderItems OrderItem?
+    status     OrderStatus @default(PENDING)
+    createdAt  DateTime    @default(now()) @map("created_at")
+
+    @@map("orders")
+}
+
+model OrderItem {
+    id        String  @id @default(uuid())
+    order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    orderId   String  @unique @map("order_id")
+    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    productId String  @map("product_id")
+    quantity  Float
+    price     Float
+
+    @@map("order_items")
+}
+
 enum Role {
     ADMIN
     MANAGER
     CUSTOMER
+}
+
+enum OrderStatus {
+    PENDING
+    PROCESSING
+    SHIPPED
+    DELIVIRED
+    CANCELLED
 }
 
 enum Provider {

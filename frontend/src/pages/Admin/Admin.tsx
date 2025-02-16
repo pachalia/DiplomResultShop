@@ -1,11 +1,11 @@
-import { ProductTableForAdmin } from '../../components';
-import { AddProductAndCategory } from '../../components/addProductAndCategory/addProductAndCategory.tsx';
-
 export const Admin = () => {
 	return (
 		<>
-			<AddProductAndCategory />
-			<ProductTableForAdmin />
+			<div className={'w-full'}>
+				<h1 className={'text-center text-3xl text-red-700'}>
+					Панель Администратора
+				</h1>
+			</div>
 		</>
 	);
 };

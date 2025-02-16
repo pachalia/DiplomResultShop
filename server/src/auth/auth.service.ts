@@ -94,6 +94,12 @@ export class AuthService {
 		return await this.prismaService.cart.create({ data: { userId } });
 	}
 
+	async registerAddress(userId: string) {
+		return await this.prismaService.address.create({
+			data: { userId, city: '', state: '', zipCode: '', phone: '', street: '' },
+		});
+	}
+
 	async login(dto: LoginDto, agent: string, res: Response): Promise<ITokenModel> {
 		const user: User = await this.userService
 			.findOne(dto.email, true)

@@ -12,7 +12,13 @@ export const UsersTableHead: React.FC<UsersTableHeadProps> = ({ lineTable }) => 
 						style={{
 							border: '1px solid black',
 							width:
-								i === 0 ? '5%' : i === 1 ? '15%' : i === 2 ? '8%' : '10%',
+								i === 0
+									? '3%'
+									: i === 1
+										? '12%'
+										: i === 2
+											? '35%'
+											: '10%',
 						}}
 						key={i}
 					>

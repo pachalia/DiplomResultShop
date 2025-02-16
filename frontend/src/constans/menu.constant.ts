@@ -12,3 +12,9 @@ export const ADMIN_MENU: Menu[] = [
 	{ path: '/admin/category', name: 'Категории' },
 	{ path: '/admin/user', name: 'Пользователи' },
 ];
+
+export const MANAGER_MENU: Menu[] = [
+	{ path: '/manager', name: 'Менеджер' },
+	{ path: '/manager/addproduct', name: 'Добавить продукт' },
+	{ path: '/manager/orders', name: 'Заказы' },
+];

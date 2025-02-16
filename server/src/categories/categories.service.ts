@@ -3,6 +3,7 @@ import {
 	ConflictException,
 	Injectable,
 	Logger,
+	NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { Category } from '@prisma/client';
@@ -48,5 +49,18 @@ export class CategoriesService {
 
 	async deleteCategory(name: string) {
 		return await this.prisma.category.delete({ where: { name } });
+	}
+
+	async updateCategory(id: string, category: string): Promise<{ name: string }> {
+		if (!(await this.prisma.category.findFirst({ where: { name: id } })))
+			throw new NotFoundException('Категория не найдена');
+		const _category = await this.prisma.category.findFirst({
+			where: { name: category },
+		});
+		if (_category) throw new ConflictException('Такая категория уже существует');
+		return await this.prisma.category.update({
+			where: { name: id },
+			data: { name: category },
+		});
 	}
 }
