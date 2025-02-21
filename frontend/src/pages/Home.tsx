@@ -2,7 +2,7 @@ import { Card } from '@components';
 import { useAppSelector } from '@redux';
 import { ProductService } from '@services';
 import { useEffect, useState } from 'react';
-import { Order } from '../../types/order.type.ts';
+import { Order } from '@types';
 
 export const Home: React.FC = () => {
 	const { products } = useAppSelector((state) => state.product);

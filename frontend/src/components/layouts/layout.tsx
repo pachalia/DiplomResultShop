@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { IUser } from '@interfaces';
-import { Menu } from '../../../types/menu.type.ts';
+import { Menu } from '@types';
 
 interface LayoutProps {
 	title: string;

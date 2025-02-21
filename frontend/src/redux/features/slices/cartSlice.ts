@@ -1,4 +1,4 @@
-import { ICart } from '../../../interfaces/cart.interface.ts';
+import { ICart } from '@interfaces';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface IState {

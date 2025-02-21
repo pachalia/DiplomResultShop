@@ -28,7 +28,9 @@
 		"@inputs": ["src/inputConfigs"],
 		"@components": ["src/components"],
 		"@routing": ["src/routing"],
-		"@redux": ["src/redux"]
+		"@redux": ["src/redux"],
+		"@constans": ["src/constans"],
+		"@types": ["src/types"]
 	}
   },
   "include": ["src"]

@@ -1,8 +1,7 @@
 import axios from 'axios';
-import { URL_API_CART } from '../constans/url.constans.ts';
-import { store } from '../redux/store.ts';
-import { ICart } from '../interfaces/cart.interface.ts';
-import { addProductToCart, setCart } from '../redux/features/slices/cartSlice.ts';
+import { URL_API_CART } from '@constans';
+import { ICart } from '@interfaces';
+import { addProductToCart, setCart, store } from '@redux';
 
 export class CartService {
 	static async getCart() {
@@ -20,5 +19,15 @@ export class CartService {
 			})
 			.then((res) => res.data);
 		cart && store.dispatch(addProductToCart(cart));
+	}
+
+	static async deleteProductToCart(id: string): Promise<boolean> {
+		return await axios.delete(`${URL_API_CART}/${id}`).then(() => {
+			return true;
+		});
+	}
+
+	static async clearCart() {
+		return await axios.delete(URL_API_CART).then(() => store.dispatch(setCart([])));
 	}
 }

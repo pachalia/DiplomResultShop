@@ -1,4 +1,4 @@
-import { Order } from '../../types/order.type.ts';
+import { Order } from '@types';
 
 export interface IPagination {
 	offset?: number;

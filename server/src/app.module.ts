@@ -11,6 +11,8 @@ import { JwtAuthGuard } from '@auth/guargs/jwt-auth.guard';
 import { CartModule } from './cart/cart.module';
 import { AuthMiddleware } from '@auth/middlewares/auth.middleware';
 import { AddressModule } from './address/address.module';
+import { PaymentModule } from './payment/payment.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
 	imports: [
@@ -21,6 +23,8 @@ import { AddressModule } from './address/address.module';
 		AuthModule,
 		CartModule,
 		AddressModule,
+		PaymentModule,
+		OrderModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

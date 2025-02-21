@@ -13,6 +13,8 @@ export default defineConfig({
 			'@interfaces': path.resolve(__dirname, 'src/interfaces'),
 			'@routing': path.resolve(__dirname, 'src/routing'),
 			'@redux': path.resolve(__dirname, 'src/redux'),
+			'@constans': path.resolve(__dirname, 'src/constans'),
+			'@types': path.resolve(__dirname, 'src/types'),
 		},
 	},
 });

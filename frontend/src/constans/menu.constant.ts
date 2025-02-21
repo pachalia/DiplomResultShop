@@ -1,4 +1,4 @@
-import { Menu } from '../../types/menu.type.ts';
+import { Menu } from '@types';
 
 export const MENU: Menu[] = [
 	{ path: '/', name: 'Главная' },

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { URL_API_PRODUCTS } from '../constans/url.constans.ts';
+import { URL_API_PRODUCTS } from '@constans';
 import { deleteProduct, setProducts, updateProduct, store } from '@redux';
 import { IProductsResponse } from '../responses/products.response.ts';
 import { ICategoryPagination, IProduct } from '@interfaces';

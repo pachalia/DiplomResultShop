@@ -6,11 +6,8 @@ interface ModalProps<T> {
 	setModal: React.Dispatch<React.SetStateAction<T | null>>;
 }
 
-export const Modal: React.FC<ModalProps<{ id: string; isModal: boolean }>> = ({
-	message,
-	callback,
-	setModal,
-}) => {
+// Указываем тип T, например, как unknown
+export const Modal = <T,>({ message, callback, setModal }: ModalProps<T>) => {
 	return (
 		<div
 			id="popup-modal"

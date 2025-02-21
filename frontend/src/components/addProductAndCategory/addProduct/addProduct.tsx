@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { addProductFieldConfig, AddProductFormData } from '@inputs';
 import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
@@ -10,14 +10,20 @@ export const AddProduct: React.FC = () => {
 	const controllers = useFormControllers(formMethods, addProductFieldConfig);
 	const { categories } = useAppSelector((state) => state.category);
 	const dispatch = useAppDispatch();
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
 		categories.length && formMethods.setValue('category', categories[0]);
-	}, [categories, formMethods.setValue]);
+	}, [categories, formMethods]);
 
 	const onSubmit = (data: AddProductFormData) => {
 		ProductService.addProduct(data).then((res) => {
 			Message.success('Продукт успешно добавлен');
+			formMethods.reset();
+			formMethods.setValue('category', categories[0]);
+			if (fileInputRef.current) {
+				fileInputRef.current.value = '';
+			}
 			res && dispatch(addProduct(res));
 		});
 	};
@@ -47,10 +53,11 @@ export const AddProduct: React.FC = () => {
 								{field.name === 'description' && 'Описание продукта:'}
 								{field.name === 'price' && 'Цена товара:'}
 								{field.name === 'quantity' && 'Количество:'}
-								{field.name === 'image' && 'Изоюражение продукта:'}
+								{field.name === 'image' && 'Изображение продукта:'}
 								{field.name === 'category' && 'Категория продукта:'}
 								{field.name === 'image' && (
 									<input
+										ref={fileInputRef}
 										type="file"
 										accept="image/*"
 										onChange={(e) => {

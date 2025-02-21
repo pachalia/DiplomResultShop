@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { URL_API } from '../constans/url.constans.ts';
+import { URL_API } from '@constans';
 import { setLoginMessage, setRegisterMessage, setUser, store } from '@redux';
 import { IPagination, IUser } from '@interfaces';
 import { PaginationResponse } from '../responses/pagination.response.ts';

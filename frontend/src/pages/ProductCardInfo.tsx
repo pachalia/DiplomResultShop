@@ -33,8 +33,8 @@ export const ProductCardInfo = () => {
 			<div className="w-10/12 max-w-md bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
 				{product?.image && (
 					<img
-						className="rounded-t-lg w-full h-64 object-cover"
-						src={product.image}
+						className="rounded-t-lg  h-64 object-cover w-6/12 m-auto"
+						src={product.image ? product.image : 'images/image.webp'}
 						alt={product.name}
 					/>
 				)}

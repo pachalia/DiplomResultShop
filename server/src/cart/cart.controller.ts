@@ -17,6 +17,11 @@ export class CartController {
 		return this.cartService.getCartByUser(user.id);
 	}
 
+	@Delete()
+	clearCart(@CurrentUser() user: JwtPayload) {
+		return this.cartService.deleteProductToCart(user.id);
+	}
+
 	@Delete(':id')
 	deleteProductToCart(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
 		return this.cartService.deleteProductToCart(user.id, id);

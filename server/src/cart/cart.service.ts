@@ -36,19 +36,29 @@ export class CartService {
 						product_description: val.product.description,
 						product_price: val.product.price,
 						product_stock_quantity: val.product.quantity,
+						product_image: val.product.image,
 					};
 				}),
 			);
 	}
 
-	async deleteProductToCart(userId: string, id: string) {
+	async deleteProductToCart(userId: string, id?: string) {
 		const cart = await this.prismaService.cart.findFirst({ where: { userId } });
 		if (!cart) return null;
-		const { count } = await this.prismaService.cartItem.deleteMany({
-			where: {
-				AND: [{ cartId: cart.id }, { id }],
-			},
-		});
-		return count > 0 ? true : false;
+		let count: number;
+		if (!id) {
+			count = await this.prismaService.cartItem
+				.deleteMany({ where: { cartId: cart.id } })
+				.then((res) => res.count);
+		} else {
+			count = await this.prismaService.cartItem
+				.deleteMany({
+					where: {
+						AND: [{ cartId: cart.id }, { id }],
+					},
+				})
+				.then((res) => res.count);
+		}
+		return count > 0;
 	}
 }

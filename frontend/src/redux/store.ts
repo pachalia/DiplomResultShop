@@ -5,6 +5,7 @@ import {
 	cartReducer,
 	userReducer,
 	categoryReducer,
+	orderReducer,
 } from './features';
 
 export const store = configureStore({
@@ -14,6 +15,7 @@ export const store = configureStore({
 		user: userReducer,
 		cart: cartReducer,
 		message: messageReducer,
+		order: orderReducer,
 	},
 	devTools: true,
 });
