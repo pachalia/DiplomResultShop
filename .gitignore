@@ -25,3 +25,4 @@ frontend/dist
 *.njsproj
 *.sln
 *.sw?
+!/frontend/src/redux/features/slices/orderSlice.ts

@@ -26,10 +26,10 @@ export class PaymentService {
 		return await this.checkout.createPayment(createPayload, idempotenceKey);
 	}
 
-	async refund(paymentId: string, amount) {
+	async refund(paymentId: string, amount: string) {
 		const idempotenceKey = v4();
 		return this.checkout.createRefund(
-			{ payment_id: paymentId, amount },
+			{ payment_id: paymentId, amount: { value: amount, currency: 'RUB' } },
 			idempotenceKey,
 		);
 	}

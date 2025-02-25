@@ -1,31 +1,33 @@
 import { UsersTableHead } from './UsersTableHead.tsx';
 import { UsersTableCell } from './UsersTableCell.tsx';
 import { useEffect, useState } from 'react';
-import { IUser } from '@interfaces';
 import { UserService } from '@services';
-import { useForm } from 'react-hook-form';
-import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
-import { findUsersFieldConfig, findUsersFormData } from '@inputs';
-import { Button } from '@components';
+import { findUsersFormData } from '@inputs';
+import { FindFormUsersComponent, Pagination, Spinner } from '@components';
+import { setUsersList, useAppDispatch, useAppSelector } from '@redux';
 
-const lineTable: string[] = ['№', 'Email', 'Role', 'Удалить'];
+const lineTable: string[] = ['№', 'Email', 'Role', 'Действие'];
+const LIMIT = 4;
 export const UsersTable = () => {
-	const [users, setUsers] = useState<IUser[]>([]);
 	const [roles, setRoles] = useState<string[]>([]);
 	const [editStates, setEditStates] = useState<{
 		[key: string]: { isEditing: boolean; role: string };
 	}>({});
 
-	const formMethods = useForm<findUsersFormData>({ mode: 'onChange' });
-	const controllers = useFormControllers(formMethods, findUsersFieldConfig);
-	const getUsers = async () => {
-		const res = await UserService.getUsers();
-		if (res?.data) setUsers(res.data);
-	};
+	const [currentPage, setCurrentPage] = useState<number>(1);
+	const [loading, setLoading] = useState<boolean>(true);
+
+	const dispatch = useAppDispatch();
+	const { users_list } = useAppSelector((state) => state.user);
+
 	useEffect(() => {
-		getUsers();
+		const offset = (currentPage - 1) * LIMIT;
+		UserService.getUsers(offset.toString(), LIMIT.toString(), 'desc').then((res) => {
+			setLoading(false);
+			dispatch(setUsersList(res));
+		});
 		UserService.getUsersRole().then((res) => setRoles(res));
-	}, []);
+	}, [dispatch, currentPage]);
 
 	const handleEditClick = (userId: string, currentRole: string) => {
 		setEditStates((prev) => ({
@@ -36,10 +38,13 @@ export const UsersTable = () => {
 
 	const handleRoleChange = async (userId: string, newRole: string) => {
 		UserService.updateRoleUser(userId, newRole).then((res) => {
-			const userArray = [...users];
-			const index = userArray.findIndex((val) => val.id === userId);
-			userArray[index] = res.data;
-			setUsers(() => [...userArray]);
+			const userArray = users_list?.data && [...users_list.data];
+			if (userArray) {
+				const index = userArray.findIndex((val) => val.id === userId);
+				userArray[index] = res.data;
+				dispatch(setUsersList({ ...users_list, data: userArray }));
+			}
+
 			setEditStates((prev) => ({
 				...prev,
 				[userId]: { isEditing: false, role: prev[userId].role },
@@ -48,54 +53,55 @@ export const UsersTable = () => {
 	};
 	const deleteUserHandler = (id: string) => {
 		UserService.deleteUser(id).then(() => {
-			let newArr = [...users];
-			newArr = newArr.filter((val) => val.id !== id);
-			setUsers(() => [...newArr]);
+			if (users_list?.data) {
+				let newArr = [...users_list.data];
+				newArr = newArr.filter((val) => val.id !== id);
+				dispatch(setUsersList({ ...users_list, data: newArr }));
+			}
 		});
 	};
 
-	const onSubmit = (data: findUsersFormData) => {
+	const onSubmit = async (data: findUsersFormData) => {
 		data.email
 			? UserService.findUsersByEmail(data.email.trim().toLowerCase()).then(
 					(res) => {
-						res && setUsers(() => [...res]);
+						const total = res.data.length;
+						dispatch(setUsersList({ total, data: res.data }));
 					},
 				)
-			: getUsers();
+			: UserService.getUsers().then((res) => dispatch(setUsersList(res)));
 	};
+	const totalPages = users_list.total ? Math.ceil(users_list.total / LIMIT) : 0;
 	return (
 		<>
-			<form onSubmit={formMethods.handleSubmit(onSubmit)} className={'flex'}>
-				{controllers.map(({ field }, index) => (
-					<label
-						key={index}
-						className={
-							'flex flex-col p-1 border border-solid border-gray-400 mb-2.5'
-						}
-					>
-						{field.name === 'email' && 'Email:'}
-						<input
-							{...field}
-							placeholder={'Введите email для поиска'}
-							type={'text'}
-							className={'w-full p-3 border-b-gray-800 border border-solid'}
+			<FindFormUsersComponent onSubmit={onSubmit} />
+			{!loading ? (
+				<>
+					<table>
+						<UsersTableHead lineTable={lineTable} />
+						<UsersTableCell
+							roles={roles}
+							editStates={editStates}
+							setEditStates={setEditStates}
+							handleEditClick={handleEditClick}
+							handleRoleChange={handleRoleChange}
+							deleteUser={deleteUserHandler}
 						/>
-					</label>
-				))}
-				<Button type={'submit'} title={'Найти'} />
-			</form>
-			<table>
-				<UsersTableHead lineTable={lineTable} />
-				<UsersTableCell
-					roles={roles}
-					users={users}
-					editStates={editStates}
-					setEditStates={setEditStates}
-					handleEditClick={handleEditClick}
-					handleRoleChange={handleRoleChange}
-					deleteUser={deleteUserHandler}
-				/>
-			</table>
+					</table>
+					{totalPages > 1 && (
+						<Pagination
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+							load={setLoading}
+						/>
+					)}
+				</>
+			) : (
+				<div className={'flex justify-center'}>
+					<Spinner />
+				</div>
+			)}
 		</>
 	);
 };

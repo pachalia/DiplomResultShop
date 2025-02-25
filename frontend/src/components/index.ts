@@ -11,3 +11,7 @@ export * from './layouts/user.layout.tsx';
 export * from './category/categoryTable/table.category.tsx';
 export * from './category/categoryTable/categoryTableForAdminLayout.tsx';
 export * from './category/categoryTable/categoryTableForAdminLayoutCell.tsx';
+export * from './pagination/pagination.tsx';
+export * from './UI/spinner/spinner.tsx';
+export * from './modal/modal.tsx';
+export * from './admin/users/find.form.users.component.tsx';

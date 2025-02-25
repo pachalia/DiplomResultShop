@@ -1,45 +1,58 @@
-import { ITransaction, Status } from '@interfaces';
+import { ITransaction, Order, PaymentStatus, Status } from '@interfaces';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface IState {
-	order: ITransaction[];
+	transaction: ITransaction;
 }
 
-const initialState: IState = { order: [] };
+const initialState: IState = {
+	transaction: {
+		data: [],
+		limit: undefined,
+		ofset: undefined,
+		total: undefined,
+		order: undefined,
+		status: undefined,
+	},
+};
 
 const orderSlice = createSlice({
 	name: 'order',
 	initialState,
 	reducers: {
-		setOrder: (state, action: PayloadAction<ITransaction[]>) => {
-			state.order = [...action.payload];
+		setOrder: (state, action: PayloadAction<ITransaction>) => {
+			state.transaction = action.payload;
 		},
-		addOrder: (state, action: PayloadAction<ITransaction>) => {
-			state.order = [action.payload, ...state.order];
+		addOrder: (state, action: PayloadAction<Order>) => {
+			state.transaction.total =
+				state.transaction.total && state.transaction.total++;
+			state.transaction.data = [action.payload, ...state.transaction.data];
 		},
 		deleteOrder: (state, action: PayloadAction<string>) => {
-			const neworder: ITransaction[] = [...state.order].filter(
+			const neworder: Order[] = [...state.transaction.data].filter(
 				(val) => val.id !== action.payload,
 			);
-			state.order = [...neworder];
+			state.transaction.total =
+				state.transaction.total && state.transaction.total--;
+			state.transaction.data = [...neworder];
 		},
 		updateOrderStatus: (
 			state,
 			action: PayloadAction<{ id: string; status: Status }>,
 		) => {
-			const orderArr = [...state.order];
+			const orderArr = [...state.transaction.data];
 			const index = orderArr.findIndex((val) => val.id === action.payload.id);
 			orderArr[index].status = action.payload.status;
-			state.order = [...orderArr];
+			state.transaction.data = [...orderArr];
 		},
 		updatePaymentStatus: (
 			state,
-			action: PayloadAction<{ id: string; status: string }>,
+			action: PayloadAction<{ id: string; status: PaymentStatus }>,
 		) => {
-			const orderArr = [...state.order];
+			const orderArr = [...state.transaction.data];
 			const index = orderArr.findIndex((val) => val.id === action.payload.id);
 			orderArr[index].payment_status = action.payload.status;
-			state.order = [...orderArr];
+			state.transaction.data = [...orderArr];
 		},
 	},
 });

@@ -10,6 +10,7 @@ interface Address {
 	phone: string;
 }
 interface OrderInfo {
+	id: string;
 	name: string;
 	price_product: number;
 	quantity: number;
@@ -39,8 +40,22 @@ export class OrderService {
 			.catch((e: AxiosError) => console.log(e.message));
 	}
 
-	static async getOrders() {
-		return await axios.get<ITransaction[]>(URL_API_ORDER).then((res) => res.data);
+	static async getOrders(
+		offset: string = '0',
+		limit: string = '4',
+		order: 'asc' | 'desc',
+		status?: Status,
+		email?: string,
+	): Promise<ITransaction> {
+		const params = new URLSearchParams();
+		params.append('offset', offset);
+		params.append('limit', limit);
+		params.append('order', order);
+		status && params.append('status', status);
+		email && params.append('email', email);
+		return await axios
+			.get<ITransaction>(`${URL_API_ORDER}/?${params}`)
+			.then((res) => res.data);
 	}
 
 	static async updateOrderStatus(id: string, status: string) {
@@ -53,5 +68,15 @@ export class OrderService {
 		return await axios
 			.get<OrderInfoResponse>(`${URL_API_ORDER}/order-item/${id}`)
 			.then((res) => res.data);
+	}
+
+	static async deleteOrderItem(id: string) {
+		return await axios.delete<{
+			id: string;
+			orderId: string;
+			productId: string;
+			quantity: number;
+			price: number;
+		}>(`${URL_API_ORDER}/order-item/${id}`);
 	}
 }

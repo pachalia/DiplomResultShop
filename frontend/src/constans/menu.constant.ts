@@ -16,5 +16,5 @@ export const ADMIN_MENU: Menu[] = [
 export const MANAGER_MENU: Menu[] = [
 	{ path: '/manager', name: 'Менеджер' },
 	{ path: '/manager/addproduct', name: 'Добавить продукт' },
-	{ path: '/manager/orders', name: 'Заказы' },
+	{ path: '/manager/orders/1', name: 'Заказы' },
 ];

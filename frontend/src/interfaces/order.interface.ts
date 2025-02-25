@@ -1,3 +1,5 @@
+import { PaymentStatus } from './payment';
+
 export type Status = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVIRED' | 'CANCELLED';
 export interface IOrder {
 	id: string;
@@ -12,11 +14,20 @@ export interface IOrderItem {
 	price: number;
 }
 
-export interface ITransaction {
+export interface Order {
 	id: string;
 	status: Status;
 	created_at: string;
 	user_email: string;
 	amount: string;
-	payment_status: string;
+	payment_status: PaymentStatus;
+}
+
+export interface ITransaction {
+	data: Order[];
+	ofset?: number;
+	total?: number;
+	limit?: number;
+	status?: Status;
+	order?: 'asc' | 'desc';
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { URL_API } from '@constans';
 import { setLoginMessage, setRegisterMessage, setUser, store } from '@redux';
-import { IPagination, IUser } from '@interfaces';
+import { IUser } from '@interfaces';
 import { PaginationResponse } from '../responses/pagination.response.ts';
 import { Message } from './message.service.ts';
 import { AddressFormData } from '../inputConfigs/address.input.config.ts';
@@ -56,12 +56,18 @@ export class UserService {
 	}
 
 	static async getUsers(
-		pagination?: IPagination,
-	): Promise<PaginationResponse<IUser[]> | undefined> {
-		if (!pagination)
-			return await axios
-				.get<PaginationResponse<IUser[]>>(`${URL_API}/user`)
-				.then((res) => res.data);
+		offset: string = '0',
+		limit: string = '4',
+		order: 'asc' | 'desc' = 'desc',
+	) {
+		const params = new URLSearchParams();
+		params.append('offset', offset);
+		params.append('limit', limit);
+		params.append('order', order);
+		const res = await axios.get<PaginationResponse<IUser[]>>(
+			`${URL_API}/user/?${params}`,
+		);
+		return res.data;
 	}
 
 	static async updateRoleUser(id: string, role: string) {
@@ -93,14 +99,8 @@ export class UserService {
 			});
 	}
 
-	static async findUsersByEmail(email: string): Promise<IUser[] | null> {
-		return await axios
-			.get<IUser[]>(`${URL_API}/user/${email}`)
-			.then((res) => res.data)
-			.catch((e: AxiosError) => {
-				Message.danger(e.message);
-				return null;
-			});
+	static async findUsersByEmail(email: string) {
+		return await axios.get<IUser[]>(`${URL_API}/user/${email}`).then((res) => res);
 	}
 
 	static async updateAddress(data: AddressFormData) {

@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { OrderStatus } from '@prisma/client';
 import { PaymentService } from '../payment/payment.service';
+import { OrderPaginationDto } from '../shared/order-pagination.dto';
+import { plainToInstance } from 'class-transformer';
+import { IOrder } from '../interfaces/order.interface';
 
 @Injectable()
 export class OrderService {
@@ -53,12 +56,40 @@ export class OrderService {
 		);
 	}
 
-	async getOrders() {
+	async getOrders(orderPagination: OrderPaginationDto): Promise<[IOrder[], number]> {
+		const {
+			order,
+			offset: skip,
+			limit: take,
+			status,
+			email,
+		} = plainToInstance(OrderPaginationDto, orderPagination);
+
+		if (order && order !== 'asc' && order !== 'desc') {
+			throw new BadRequestException(
+				`Нужно указать 'asc' или 'desc'. У вас указан '${order}'`,
+			);
+		}
+
+		const userId = email
+			? (await this.prismaService.user.findFirst({ where: { email } }))?.id
+			: null;
+
+		const whereConditions = {
+			...(status ? { status } : {}),
+			...(userId ? { userId } : {}),
+		};
+
+		const count = await this.prismaService.order.count({ where: whereConditions });
 		const orders = await this.prismaService.order.findMany({
+			skip,
+			take,
+			where: whereConditions,
 			include: { user: true },
-			orderBy: { createdAt: 'desc' },
+			orderBy: { createdAt: order },
 		});
-		return await Promise.all(
+
+		const _orders: IOrder[] = await Promise.all(
 			orders.map(async (val) => {
 				const payment = await this.paymentService.getPayment(val.id);
 				return {
@@ -72,6 +103,8 @@ export class OrderService {
 				};
 			}),
 		);
+
+		return [_orders, count];
 	}
 
 	deleteOrder(id: string) {
@@ -104,6 +137,7 @@ export class OrderService {
 		const payment = await this.paymentService.getPayment(order.id);
 		const _orderItem = orderItem.map((val) => {
 			return {
+				id: val.id,
 				name: val.product.name,
 				price_product: val.price,
 				quantity: val.quantity,
@@ -121,5 +155,8 @@ export class OrderService {
 			payment,
 			data: [..._orderItem],
 		};
+	}
+	async deleteOrderItem(orderItemId: string) {
+		return await this.prismaService.orderItem.delete({ where: { id: orderItemId } });
 	}
 }

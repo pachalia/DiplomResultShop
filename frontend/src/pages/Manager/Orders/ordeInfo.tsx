@@ -1,11 +1,34 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { OrderInfoResponse, OrderService } from '@services';
-import { Button } from '@components';
+import { Message, OrderInfoResponse, OrderService, PaymentService } from '@services';
+import { Button, Modal } from '@components';
 
 export const OrderInfo = () => {
 	const { id } = useParams<{ id: string }>();
 	const [order, setOrder] = useState<OrderInfoResponse>();
+	const [modal, setModal] = useState<{
+		orderItemId: string;
+		orderId: string;
+		refund: string;
+		isModal: boolean;
+	} | null>(null);
+
+	const clickHandler = (paymentId: string, refund: string) => {
+		PaymentService.paymentRefund(paymentId, refund).then((res) => {
+			res.status === 'succeeded' && modal?.orderItemId
+				? OrderService.deleteOrderItem(modal?.orderItemId).then(() => {
+						const orderItemArr = order?.data && [...order.data];
+						if (orderItemArr) {
+							const newOrderItemArr = orderItemArr.filter(
+								(val) => val.id !== modal.orderItemId,
+							);
+							setOrder({ ...order, data: newOrderItemArr });
+						}
+						Message.success('Продукт из заказа удалён успешно');
+					})
+				: Message.danger('Продукт не удалён. Произошла ошибка.');
+		});
+	};
 
 	useEffect(() => {
 		id && OrderService.getOrderInfo(id).then((res) => setOrder(res));
@@ -13,6 +36,15 @@ export const OrderInfo = () => {
 
 	return (
 		<>
+			{modal?.isModal && (
+				<div>
+					<Modal
+						message={'Удалить продукт из заказа?'}
+						callback={() => clickHandler(modal?.orderId, modal?.refund)}
+						setModal={setModal}
+					/>
+				</div>
+			)}
 			{order && (
 				<div className="container mx-auto p-6">
 					<h1 className="text-center text-3xl text-gray-800 font-bold mb-6">
@@ -63,11 +95,14 @@ export const OrderInfo = () => {
 									<span>{order.payment.income_amount.value}</span>
 								</div>
 							)}
-
-							<div className="flex justify-between">
-								<span className="font-medium">карта:</span>
-								<span>{order.payment.payment_method.card?.first6}</span>
-							</div>
+							{order.payment?.payment_method?.card && (
+								<div className="flex justify-between">
+									<span className="font-medium">карта:</span>
+									<span>
+										{order.payment.payment_method.card.first6}
+									</span>
+								</div>
+							)}
 						</div>
 					</div>
 					<div className="bg-white shadow-md rounded-lg p-5 w-6/12 m-auto">
@@ -86,7 +121,24 @@ export const OrderInfo = () => {
 										<p className="text-gray-600">{`Количество: ${item.quantity}`}</p>
 										<p className="text-gray-600">{`В наличии: ${item.quantity_stock}`}</p>
 									</div>
-									<Button title={'Оформить возврат'} />
+									{order.payment.status !== 'canceled' ? (
+										<Button
+											onClick={() => {
+												const amount = (
+													item.quantity * item.price_product
+												).toString();
+												setModal({
+													isModal: true,
+													refund: amount,
+													orderId: order.payment.id,
+													orderItemId: item.id,
+												});
+											}}
+											title={'Оформить возврат'}
+										/>
+									) : (
+										''
+									)}
 								</li>
 							))}
 						</ul>

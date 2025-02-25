@@ -47,6 +47,12 @@ export class CategoriesService {
 		return [category, count];
 	}
 
+	async findCategory(category: string) {
+		return await this.prisma.category.findMany({
+			where: { name: { contains: category, mode: 'insensitive' } },
+		});
+	}
+
 	async deleteCategory(name: string) {
 		return await this.prisma.category.delete({ where: { name } });
 	}

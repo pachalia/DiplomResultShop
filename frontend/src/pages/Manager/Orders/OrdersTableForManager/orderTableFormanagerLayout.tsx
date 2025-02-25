@@ -1,5 +1,6 @@
 import { OrderTableForManagerLayoutCell } from './orderTableForManagerLayoutCell.tsx';
-import { Status } from '@interfaces';
+import { PaymentStatus, Status } from '@interfaces';
+import { useAppSelector } from '@redux';
 
 interface EditState {
 	isEditing: boolean;
@@ -14,24 +15,24 @@ export interface Order {
 	created_at: string;
 	user_email: string;
 	amount: string;
-	payment_status: string;
+	payment_status: PaymentStatus;
 }
-interface IProductTableForAdminLayout {
+interface IOrderTableForManagerLayout {
 	lineTable: string[];
-	orders: Order[];
+
 	clickHandler: (id: string, status: Status) => void;
 	handleSaveStatus: (id: string) => void;
 	editStates: EditStates;
 	setEditStates: React.Dispatch<React.SetStateAction<EditStates>>;
 }
-export const OrderTableForManagerLayout: React.FC<IProductTableForAdminLayout> = ({
-	orders,
+export const OrderTableForManagerLayout: React.FC<IOrderTableForManagerLayout> = ({
 	handleSaveStatus,
 	lineTable,
 	clickHandler,
 	editStates,
 	setEditStates,
 }) => {
+	const { transaction } = useAppSelector((state) => state.order);
 	return (
 		<div className={'w-full flex items-center flex-col'}>
 			<table
@@ -59,7 +60,7 @@ export const OrderTableForManagerLayout: React.FC<IProductTableForAdminLayout> =
 					</tr>
 				</thead>
 				<tbody>
-					{orders.map((val, i) => {
+					{transaction.data.map((val, i) => {
 						const editState = editStates[val.id] || {
 							isEditing: false,
 							status: val.status,

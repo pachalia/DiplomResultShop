@@ -1,12 +1,12 @@
 import { Order } from './orderTableFormanagerLayout.tsx';
-import { Button } from '@components';
+import { Button, Modal } from '@components';
 import { transaction } from '@constans';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { Modal } from '../../../../components/modal/modal.tsx';
 import { PaymentService } from '@services';
 import { Status } from '@interfaces';
 import { updatePaymentStatus, useAppDispatch } from '@redux';
+import { orderStatus } from '@utils';
 
 interface EditState {
 	isEditing: boolean;
@@ -103,7 +103,6 @@ export const OrderTableForManagerLayoutCell: React.FC<
 									onClick={() => handleSaveStatus(value.id)}
 									title={'Сохранить'}
 								/>
-
 								<Button
 									onClick={() => {
 										setEditStates((prev) => ({
@@ -120,19 +119,19 @@ export const OrderTableForManagerLayoutCell: React.FC<
 						</div>
 					) : (
 						<div className={'flex justify-between'}>
-							{value.status === 'PENDING'
-								? 'В ожидание'
-								: value.status === 'PROCESSING'
-									? 'Обработка'
-									: value.status === 'SHIPPED'
-										? 'Отправлено'
-										: value.status === 'DELIVIRED'
-											? 'Доставлено'
-											: 'Отмена'}
-							<Button
-								onClick={() => handleEditClick(value.id, value.status)}
-								title={'Ред.'}
-							/>
+							{value.payment_status !== 'canceled'
+								? orderStatus(value.status)
+								: ''}
+							{value.payment_status !== 'canceled' ? (
+								<Button
+									onClick={() =>
+										handleEditClick(value.id, value.status)
+									}
+									title={'Ред.'}
+								/>
+							) : (
+								''
+							)}
 						</div>
 					)}
 				</td>

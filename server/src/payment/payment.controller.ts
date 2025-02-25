@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { RolesGuard } from '@auth/guargs/role.guard';
 import { Role } from '@prisma/client';
@@ -16,7 +16,7 @@ export class PaymentController {
 	@UseGuards(RolesGuard)
 	@Roles(Role.MANAGER)
 	@Post('refund')
-	async createRefund(@Body() body: { paymentId; amount }) {
+	async createRefund(@Body() body: { paymentId: string; amount: string }) {
 		return await this.paymentService.refund(body.paymentId, body.amount);
 	}
 
@@ -27,5 +27,12 @@ export class PaymentController {
 		return body.amount
 			? await this.paymentService.capturePayment(body.paymentId, body.amount)
 			: await this.paymentService.capturePayment(body.paymentId);
+	}
+
+	@UseGuards(RolesGuard)
+	@Roles(Role.MANAGER)
+	@Get(':id')
+	async getPaymentById(@Param('id') id: string) {
+		return await this.paymentService.getPayment(id);
 	}
 }

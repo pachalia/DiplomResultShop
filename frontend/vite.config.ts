@@ -15,6 +15,7 @@ export default defineConfig({
 			'@redux': path.resolve(__dirname, 'src/redux'),
 			'@constans': path.resolve(__dirname, 'src/constans'),
 			'@types': path.resolve(__dirname, 'src/types'),
+			'@utils': path.resolve(__dirname, 'src/utils'),
 		},
 	},
 });

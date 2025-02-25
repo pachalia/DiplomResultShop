@@ -6,6 +6,7 @@ import {
 	Param,
 	Post,
 	Put,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
@@ -14,6 +15,8 @@ import { JwtPayload } from '@auth/interfaces';
 import { RolesGuard } from '@auth/guargs/role.guard';
 import { OrderStatus, Role } from '@prisma/client';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
+import { OrderPaginationDto } from '../shared/order-pagination.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('order')
 export class OrderController {
@@ -39,8 +42,10 @@ export class OrderController {
 	@UseGuards(RolesGuard)
 	@Roles(Role.MANAGER)
 	@Get()
-	async getOrders() {
-		return await this.orderService.getOrders();
+	async getOrders(@Query() ordersPaginationDto: OrderPaginationDto) {
+		const ordersPagination = plainToInstance(OrderPaginationDto, ordersPaginationDto);
+		const [data, total] = await this.orderService.getOrders(ordersPagination);
+		return { ...ordersPagination, data, total };
 	}
 
 	@Post('order-item')
@@ -60,5 +65,12 @@ export class OrderController {
 	@Delete(':id')
 	async deleteOrder(@Param('id') id: string) {
 		return await this.orderService.deleteOrder(id);
+	}
+
+	@UseGuards(RolesGuard)
+	@Roles(Role.MANAGER)
+	@Delete('order-item/:id')
+	async deleteOrderItem(@Param('id') id: string) {
+		return await this.orderService.deleteOrderItem(id);
 	}
 }

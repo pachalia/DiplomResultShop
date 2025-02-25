@@ -16,6 +16,11 @@ export class CategoriesController {
 		return { ...categoryPagination, data, total };
 	}
 
+	@Get('find/:id')
+	async findCategory(@Param('id') id: string) {
+		return await this.categoryService.findCategory(id);
+	}
+
 	@Post()
 	async createCategory(@Body() body: { name: string }) {
 		return await this.categoryService.create(body.name);

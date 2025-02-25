@@ -1,0 +1,44 @@
+.pagination {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: cyan;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 25px;
+  text-decoration: none;
+}
+.active {
+  background: red;
+  font-family: Montserrat700;
+  color: snow;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 25px;
+  text-decoration: none;
+  &:hover {
+    color: snow;
+  }
+}
+.dot_style {
+  margin-right: 25px;
+}
+.disabled {
+  display: none;
+}
+.prev_next {
+  text-decoration: none;
+  color: white;
+  background: black;
+  cursor: pointer;
+  &:hover {
+    color: white;
+  }
+}

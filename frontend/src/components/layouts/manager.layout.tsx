@@ -1,5 +1,5 @@
 import { Layout } from './layout.tsx';
-import { MANAGER_MENU } from '../../constans/menu.constant.ts';
+import { MANAGER_MENU } from '@constans';
 import { useAppSelector } from '@redux';
 
 export const ManagerLayout = () => {

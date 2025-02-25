@@ -1,7 +1,6 @@
-import { Button } from '@components';
-import { IUser } from '@interfaces';
-import { Modal } from '../../../components/modal/modal.tsx';
+import { Button, Modal } from '@components';
 import { useState } from 'react';
+import { useAppSelector } from '@redux';
 
 interface EditState {
 	isEditing: boolean;
@@ -11,7 +10,6 @@ interface EditStates {
 	[key: string]: EditState; // Ключи - строки, значения - объекты типа EditState
 }
 interface UsersTableCellProps {
-	users: IUser[];
 	roles: string[];
 	editStates: EditStates;
 	handleEditClick: (id: string, role: string) => void;
@@ -21,7 +19,6 @@ interface UsersTableCellProps {
 }
 
 export const UsersTableCell: React.FC<UsersTableCellProps> = ({
-	users,
 	roles,
 	handleRoleChange,
 	handleEditClick,
@@ -30,6 +27,8 @@ export const UsersTableCell: React.FC<UsersTableCellProps> = ({
 	deleteUser,
 }) => {
 	const [modal, setModal] = useState<{ id: string; isModal: boolean } | null>(null);
+	const { users_list } = useAppSelector((state) => state.user);
+	console.log(users_list);
 	return (
 		<>
 			{modal?.isModal && (
@@ -42,7 +41,7 @@ export const UsersTableCell: React.FC<UsersTableCellProps> = ({
 				</div>
 			)}
 			<tbody>
-				{users.map((val, index) => {
+				{users_list?.data.map((val, index) => {
 					const editState = editStates[val.id] || {
 						isEditing: false,
 						role: val.role,

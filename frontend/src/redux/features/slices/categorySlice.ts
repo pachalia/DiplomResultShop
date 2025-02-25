@@ -1,33 +1,40 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { PaginationResponse } from '../../../responses/pagination.response.ts';
+import { ICategory } from '@interfaces';
 
 interface IState {
-	categories: string[];
+	categories: PaginationResponse<ICategory[]> | null;
 }
-const initialState: IState = { categories: [] };
+const initialState: IState = { categories: null };
 
 export const categorySlice = createSlice({
 	name: 'category',
 	initialState,
 	reducers: {
-		setCategories: (state, action: PayloadAction<string[]>) => {
-			state.categories = [...action.payload];
+		setCategories: (
+			state,
+			action: PayloadAction<PaginationResponse<ICategory[]>>,
+		) => {
+			state.categories = action.payload;
 		},
-		addCategory: (state, action: PayloadAction<string>) => {
-			state.categories = [...state.categories, action.payload];
+		addCategory: (state, action: PayloadAction<{ name: string }>) => {
+			state.categories!.data = [...state.categories!.data, action.payload];
 		},
 		deleteCategory: (state, action: PayloadAction<string>) => {
-			let categoriesArr = [...state.categories];
-			categoriesArr = categoriesArr.filter((val) => val !== action.payload);
-			state.categories = [...categoriesArr];
+			let categoriesArr = [...state.categories!.data];
+			categoriesArr = categoriesArr.filter((val) => val.name !== action.payload);
+			state.categories!.data = [...categoriesArr];
 		},
 		updateCategory: (
 			state,
 			action: PayloadAction<{ id: string; category: string }>,
 		) => {
-			const categoriesArr = [...state.categories];
-			const index = categoriesArr.findIndex((val) => val === action.payload.id);
-			categoriesArr[index] = action.payload.category;
-			state.categories = [...categoriesArr];
+			const categoriesArr = [...state.categories!.data];
+			const index = categoriesArr.findIndex(
+				(val) => val.name === action.payload.id,
+			);
+			categoriesArr[index].name = action.payload.category;
+			state.categories!.data = [...categoriesArr];
 		},
 	},
 });

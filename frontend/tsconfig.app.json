@@ -30,7 +30,8 @@
 		"@routing": ["src/routing"],
 		"@redux": ["src/redux"],
 		"@constans": ["src/constans"],
-		"@types": ["src/types"]
+		"@types": ["src/types"],
+		"@utils": ["src/utils"]
 	}
   },
   "include": ["src"]

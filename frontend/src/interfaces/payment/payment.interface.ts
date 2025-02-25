@@ -17,8 +17,8 @@ export interface Payment {
 	status: PaymentStatus;
 	paid: boolean;
 	amount: IAmount;
-	income_amount: IAmount;
-	refunded_amount: IAmount;
+	income_amount?: IAmount;
+	refunded_amount?: IAmount;
 	created_at: string;
 	description: string;
 	expires_at: string;
@@ -26,7 +26,7 @@ export interface Payment {
 	payment_token: string;
 	payment_method_id: string;
 	payment_method_data: IPaymentMethodData;
-	payment_method: {
+	payment_method?: {
 		type: IPaymentMethodType;
 		id: string;
 		saved: boolean;

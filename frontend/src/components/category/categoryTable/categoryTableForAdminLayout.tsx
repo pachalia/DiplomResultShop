@@ -1,4 +1,5 @@
 import { CategoryTableForAdminLayoutCell } from './categoryTableForAdminLayoutCell.tsx';
+import { useAppSelector } from '@redux';
 
 interface EditState {
 	isEditing: boolean;
@@ -10,23 +11,26 @@ interface EditStates {
 
 interface ICategoryTableForAdminLayout {
 	lineTable: string[];
-	category: string[];
 	clickHandler: (id: string) => void;
 	handleCategoryChange: (id: string, category: string) => void;
 	handleSaveCategory: (id: string) => void;
 	editStates: EditStates;
 	setEditStates: React.Dispatch<React.SetStateAction<EditStates>>;
+	isFind: boolean;
+	findCategory: { name: string }[];
 }
 
 export const CategoryTableForAdminLayout: React.FC<ICategoryTableForAdminLayout> = ({
 	lineTable,
-	category,
 	editStates,
 	handleCategoryChange,
 	handleSaveCategory,
 	clickHandler,
 	setEditStates,
+	isFind,
+	findCategory,
 }) => {
+	const { categories } = useAppSelector((state) => state.category);
 	return (
 		<div className={'w-full flex items-center flex-col'}>
 			<table
@@ -52,24 +56,51 @@ export const CategoryTableForAdminLayout: React.FC<ICategoryTableForAdminLayout>
 					</tr>
 				</thead>
 				<tbody>
-					{category.map((val, i) => {
-						const editState = editStates[val] || {
-							isEditing: false,
-							category: val,
-						};
-						return (
-							<CategoryTableForAdminLayoutCell
-								key={val}
-								value={val}
-								index={i}
-								editState={editState}
-								handleCategoryChange={handleCategoryChange}
-								handleSaveCategory={handleSaveCategory}
-								clickHandler={clickHandler}
-								setEditStates={setEditStates}
-							/>
-						);
-					})}
+					{isFind ? (
+						<>
+							{findCategory.length &&
+								findCategory.map((val, i) => {
+									const editState = editStates[val.name] || {
+										isEditing: false,
+										category: val,
+									};
+									return (
+										<CategoryTableForAdminLayoutCell
+											key={val.name}
+											value={val.name}
+											index={i}
+											editState={editState}
+											handleCategoryChange={handleCategoryChange}
+											handleSaveCategory={handleSaveCategory}
+											clickHandler={clickHandler}
+											setEditStates={setEditStates}
+										/>
+									);
+								})}
+						</>
+					) : (
+						<>
+							{categories &&
+								categories.data.map((val, i) => {
+									const editState = editStates[val.name] || {
+										isEditing: false,
+										category: val,
+									};
+									return (
+										<CategoryTableForAdminLayoutCell
+											key={val.name}
+											value={val.name}
+											index={i}
+											editState={editState}
+											handleCategoryChange={handleCategoryChange}
+											handleSaveCategory={handleSaveCategory}
+											clickHandler={clickHandler}
+											setEditStates={setEditStates}
+										/>
+									);
+								})}
+						</>
+					)}
 				</tbody>
 			</table>
 		</div>

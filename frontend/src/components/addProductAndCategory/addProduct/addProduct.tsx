@@ -13,14 +13,14 @@ export const AddProduct: React.FC = () => {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
-		categories.length && formMethods.setValue('category', categories[0]);
+		categories?.data && formMethods.setValue('category', categories.data[0].name);
 	}, [categories, formMethods]);
 
 	const onSubmit = (data: AddProductFormData) => {
 		ProductService.addProduct(data).then((res) => {
 			Message.success('Продукт успешно добавлен');
 			formMethods.reset();
-			formMethods.setValue('category', categories[0]);
+			categories?.data && formMethods.setValue('category', categories.data[0].name);
 			if (fileInputRef.current) {
 				fileInputRef.current.value = '';
 			}
@@ -30,7 +30,7 @@ export const AddProduct: React.FC = () => {
 
 	return (
 		<>
-			{categories.length ? (
+			{categories ? (
 				<div className={'w-full'}>
 					<form
 						onSubmit={formMethods.handleSubmit(onSubmit)}
@@ -111,10 +111,10 @@ export const AddProduct: React.FC = () => {
 										onChange={(e) => field.onChange(e.target.value)}
 										onBlur={field.onBlur}
 									>
-										{categories &&
-											categories.map((val) => (
-												<option key={val} value={val}>
-													{val}
+										{categories.data &&
+											categories.data.map((val) => (
+												<option key={val.name} value={val.name}>
+													{val.name}
 												</option>
 											))}
 									</select>
