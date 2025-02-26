@@ -37,6 +37,7 @@ export class ProductService {
 		const newUpdateProduct = await axios.put(URL_API_PRODUCTS, {
 			id: product.id,
 			price: product.price ?? undefined,
+			quantity: product.quantity ?? undefined,
 		});
 		store.dispatch(updateProduct(newUpdateProduct.data));
 	}

@@ -4,6 +4,7 @@ import { IProduct } from '@interfaces';
 interface EditState {
 	isEditing: boolean;
 	price: number;
+	quantity: number;
 }
 interface EditStates {
 	[key: string]: EditState; // Ключи - строки, значения - объекты типа EditState
@@ -11,14 +12,16 @@ interface EditStates {
 interface IProductTableForAdminLayout {
 	lineTable: string[];
 	products: IProduct[];
-	clickHandler: (id: string, price: number) => void;
+	clickHandler: (id: string, price: number, quantity: number) => void;
 	handlePriceChange: (id: string, newPrice: number) => void;
+	handleQuantityChange: (id: string, newQuantity: number) => void;
 	handleSavePrice: (id: string) => void;
 	editStates: EditStates;
 }
 export const ProductTableForManagerLayout: React.FC<IProductTableForAdminLayout> = ({
 	products,
 	handlePriceChange,
+	handleQuantityChange,
 	handleSavePrice,
 	lineTable,
 	clickHandler,
@@ -62,6 +65,7 @@ export const ProductTableForManagerLayout: React.FC<IProductTableForAdminLayout>
 								value={val}
 								index={i}
 								editState={editState}
+								handleQuantityChange={handleQuantityChange}
 								handlePriceChange={handlePriceChange}
 								handleSavePrice={handleSavePrice}
 								clickHandler={clickHandler}

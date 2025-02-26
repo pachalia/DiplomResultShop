@@ -4,7 +4,7 @@ import { CategoryService } from '@services';
 import { CategoryTableForAdminLayout } from './categoryTableForAdminLayout.tsx';
 import { Pagination } from '../../pagination/pagination.tsx';
 import { Spinner } from '../../UI/spinner/spinner.tsx';
-import { FindFormCategoryComponent } from '../../admin/category/find.form.category.component.tsx';
+import { FindFormCategoryComponent } from './find.form.category.component.tsx';
 import { findCategoryFormData } from '@inputs';
 
 const lineTable: string[] = ['№', 'Категория', 'Действие'];

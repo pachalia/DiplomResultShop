@@ -1,12 +1,35 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IProduct } from '../../../interfaces/product.interface.ts';
+import { IProduct } from '@interfaces';
 
+interface ProductEdit {
+	id: string;
+	price: {
+		isEdit: boolean;
+		price: number;
+	};
+	quantity: {
+		isEdit: boolean;
+		quanttity: number;
+	};
+}
 export interface IState {
 	products: IProduct[];
+	productEdit: ProductEdit;
 }
 
 const initialState: IState = {
 	products: [],
+	productEdit: {
+		id: '',
+		price: {
+			isEdit: false,
+			price: 0,
+		},
+		quantity: {
+			isEdit: false,
+			quanttity: 0,
+		},
+	},
 };
 
 export const productSlice = createSlice({
@@ -34,6 +57,7 @@ export const productSlice = createSlice({
 	},
 });
 
-export const { setProducts, addProduct, updateProduct, deleteProduct } = productSlice.actions;
+export const { setProducts, addProduct, updateProduct, deleteProduct } =
+	productSlice.actions;
 
 export const productReducer = productSlice.reducer;

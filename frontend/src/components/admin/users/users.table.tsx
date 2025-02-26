@@ -1,5 +1,5 @@
-import { UsersTableHead } from './UsersTableHead.tsx';
-import { UsersTableCell } from './UsersTableCell.tsx';
+import { UsersTableHead } from './users.table.head.tsx';
+import { UsersTableCell } from './users.table.cell.tsx';
 import { useEffect, useState } from 'react';
 import { UserService } from '@services';
 import { findUsersFormData } from '@inputs';

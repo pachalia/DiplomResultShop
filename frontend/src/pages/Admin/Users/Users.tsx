@@ -1,4 +1,4 @@
-import { UsersTable } from './UsersTable.tsx';
+import { UsersTable } from '@components';
 
 export const Users = () => {
 	return (

@@ -1,4 +1,4 @@
-import { ProductTableForManager } from './ProductTableForManager/productTableForManager.tsx';
+import { ProductTableForManager } from '@components';
 
 export const Manager = () => {
 	return (

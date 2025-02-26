@@ -16,13 +16,13 @@ const lineTable: string[] = [
 export const ProductTableForManager = () => {
 	const { products } = useAppSelector((state) => state.product);
 	const [editStates, setEditStates] = useState<{
-		[key: string]: { isEditing: boolean; price: number };
+		[key: string]: { isEditing: boolean; price: number; quantity: number };
 	}>({});
 
-	const clickHandler = (id: string, price: number) => {
+	const clickHandler = (id: string, price: number, quantity: number) => {
 		setEditStates((prev) => ({
 			...prev,
-			[id]: { isEditing: true, price: price },
+			[id]: { isEditing: true, price, quantity },
 		}));
 	};
 	useEffect(() => {
@@ -36,11 +36,26 @@ export const ProductTableForManager = () => {
 		}));
 	};
 
-	const handleSavePrice = (id: string) => {
-		ProductService.updateProduct({ id, price: editStates[id].price });
+	const handleQuantityChange = (id: string, newQuantity: number) => {
 		setEditStates((prev) => ({
 			...prev,
-			[id]: { isEditing: false, price: prev[id].price },
+			[id]: { ...prev[id], quantity: newQuantity },
+		}));
+	};
+
+	const handleSavePrice = (id: string) => {
+		ProductService.updateProduct({
+			id,
+			price: editStates[id].price,
+			quantity: editStates[id].quantity,
+		});
+		setEditStates((prev) => ({
+			...prev,
+			[id]: {
+				isEditing: false,
+				price: prev[id].price,
+				quantity: prev[id].quantity,
+			},
 		}));
 	};
 
@@ -51,6 +66,7 @@ export const ProductTableForManager = () => {
 					lineTable={lineTable}
 					products={products}
 					clickHandler={clickHandler}
+					handleQuantityChange={handleQuantityChange}
 					handlePriceChange={handlePriceChange}
 					handleSavePrice={handleSavePrice}
 					editStates={editStates}

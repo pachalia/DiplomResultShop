@@ -4,14 +4,16 @@ import { ProductService } from '@services';
 interface EditState {
 	isEditing: boolean;
 	price: number;
+	quantity: number;
 }
 
 interface ProductTableForAdminLayoutCellProps {
 	value: IProduct;
 	index: number;
 	editState: EditState;
-	clickHandler: (id: string, price: number) => void;
+	clickHandler: (id: string, price: number, quantity: number) => void;
 	handlePriceChange: (id: string, newPrice: number) => void;
+	handleQuantityChange: (id: string, newQuantity: number) => void;
 	handleSavePrice: (id: string) => void;
 }
 
@@ -21,7 +23,15 @@ const deleteClickHandler = (id: string) => {
 
 export const ProductTableForManagerLayoutCell: React.FC<
 	ProductTableForAdminLayoutCellProps
-> = ({ value, index, editState, handleSavePrice, handlePriceChange, clickHandler }) => {
+> = ({
+	value,
+	index,
+	editState,
+	handleSavePrice,
+	handlePriceChange,
+	clickHandler,
+	handleQuantityChange,
+}) => {
 	return (
 		<>
 			<tr className={'border border-solid border-gray-500'}>
@@ -51,14 +61,42 @@ export const ProductTableForManagerLayoutCell: React.FC<
 					) : (
 						<div className={'flex justify-between'}>
 							{`${value.price}р.`}
-							<button onClick={() => clickHandler(value.id, value.price)}>
+							<button
+								onClick={() =>
+									clickHandler(value.id, value.price, value.quantity)
+								}
+							>
 								Редак.
 							</button>
 						</div>
 					)}
 				</td>
 				<td className={'border border-solid border-gray-500 text-center'}>
-					{value.quantity}
+					{editState.isEditing ? (
+						<div>
+							<input
+								type="number"
+								value={editState.quantity}
+								onChange={(e) =>
+									handleQuantityChange(value.id, +e.target.value)
+								}
+							/>
+							<button onClick={() => handleSavePrice(value.id)}>
+								Отпр.
+							</button>
+						</div>
+					) : (
+						<div className={'flex justify-between'}>
+							{value.quantity}
+							<button
+								onClick={() =>
+									clickHandler(value.id, value.price, value.quantity)
+								}
+							>
+								Редак.
+							</button>
+						</div>
+					)}
 				</td>
 				<td className={'border border-solid border-gray-500 text-center'}>
 					{value.image ? (
