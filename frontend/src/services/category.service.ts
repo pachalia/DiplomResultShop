@@ -4,15 +4,11 @@ import { PaginationResponse } from '../responses/pagination.response.ts';
 import { ICategory } from '@interfaces';
 
 export class CategoryService {
-	static async getCategory(
-		offset: string = '0',
-		limit: string = '4',
-		order: 'asc' | 'desc' = 'desc',
-	) {
+	static async getCategory(offset?: string, limit?: string, order?: 'asc' | 'desc') {
 		const params = new URLSearchParams();
-		params.append('offset', offset);
-		params.append('limit', limit);
-		params.append('order', order);
+		offset && params.append('offset', offset);
+		limit && params.append('limit', limit);
+		order && params.append('order', order);
 		return await axios.get<PaginationResponse<ICategory[]>>(
 			`${URL_API_CATEGORIES}/?${params}`,
 		);

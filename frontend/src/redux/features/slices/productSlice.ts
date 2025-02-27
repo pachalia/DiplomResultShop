@@ -1,35 +1,26 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IProduct } from '@interfaces';
 
-interface ProductEdit {
-	id: string;
-	price: {
+export interface ProductEdit {
+	price?: {
+		id: string;
 		isEdit: boolean;
 		price: number;
 	};
-	quantity: {
+	quantity?: {
+		id: string;
 		isEdit: boolean;
 		quanttity: number;
 	};
 }
 export interface IState {
 	products: IProduct[];
-	productEdit: ProductEdit;
+	productEdit: ProductEdit[];
 }
 
 const initialState: IState = {
 	products: [],
-	productEdit: {
-		id: '',
-		price: {
-			isEdit: false,
-			price: 0,
-		},
-		quantity: {
-			isEdit: false,
-			quanttity: 0,
-		},
-	},
+	productEdit: [],
 };
 
 export const productSlice = createSlice({
@@ -54,10 +45,47 @@ export const productSlice = createSlice({
 			newState = newState.filter((val) => val.id !== action.payload);
 			state.products = [...newState];
 		},
+		setPriceProduct: (state, action: PayloadAction<ProductEdit[]>) => {
+			state.productEdit = [...action.payload];
+		},
+		setPriceEdit: (state, action: PayloadAction<{ id: string; isEdit: boolean }>) => {
+			const index = state.productEdit.findIndex(
+				(val) => val.price?.id === action.payload.id,
+			);
+			if (index !== -1) {
+				const currentPrice = state.productEdit[index].price;
+				if (currentPrice) {
+					// Обновляем только поле isEdit
+					state.productEdit[index].price = {
+						...currentPrice,
+						isEdit: action.payload.isEdit,
+					};
+				}
+			}
+		},
+		savePriceEdit: (state, action: PayloadAction<{ id: string; price: number }>) => {
+			const index = state.productEdit.findIndex(
+				(val) => val.price?.id === action.payload.id,
+			);
+			if (index !== -1) {
+				state.productEdit[index].price = {
+					isEdit: false,
+					price: action.payload.price,
+					id: action.payload.id,
+				};
+			}
+		},
 	},
 });
 
-export const { setProducts, addProduct, updateProduct, deleteProduct } =
-	productSlice.actions;
+export const {
+	setProducts,
+	addProduct,
+	updateProduct,
+	deleteProduct,
+	setPriceProduct,
+	setPriceEdit,
+	savePriceEdit,
+} = productSlice.actions;
 
 export const productReducer = productSlice.reducer;

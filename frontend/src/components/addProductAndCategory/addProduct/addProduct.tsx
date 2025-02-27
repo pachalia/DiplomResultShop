@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { addProductFieldConfig, AddProductFormData } from '@inputs';
 import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
-import { ProductService, Message } from '@services';
-import { useAppDispatch, useAppSelector, addProduct } from '@redux';
+import { ProductService, Message, CategoryService } from '@services';
+import { useAppDispatch, useAppSelector, addProduct, setCategories } from '@redux';
 
 export const AddProduct: React.FC = () => {
 	const formMethods = useForm<AddProductFormData>({ mode: 'onChange' });
@@ -13,8 +13,10 @@ export const AddProduct: React.FC = () => {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
+		CategoryService.getCategory().then((res) => dispatch(setCategories(res.data)));
 		categories?.data && formMethods.setValue('category', categories.data[0].name);
-	}, [categories, formMethods]);
+		console.log(categories);
+	}, [formMethods, categories, dispatch]);
 
 	const onSubmit = (data: AddProductFormData) => {
 		ProductService.addProduct(data).then((res) => {
@@ -30,7 +32,7 @@ export const AddProduct: React.FC = () => {
 
 	return (
 		<>
-			{categories ? (
+			{categories?.data.length ? (
 				<div className={'w-full'}>
 					<form
 						onSubmit={formMethods.handleSubmit(onSubmit)}

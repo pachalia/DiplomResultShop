@@ -107,6 +107,7 @@ export class ProductsService {
 				price: product.price ?? undefined,
 				name: product.name ?? undefined,
 				quantity: product.quantity ?? undefined,
+				category_id: product.category_id ?? undefined,
 			},
 		});
 	}

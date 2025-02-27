@@ -1,5 +1,5 @@
-import { AddCategory } from './addCategory/addCategory.tsx';
-import { AddProduct } from './addProduct/addProduct.tsx';
+import { AddCategory } from '@components';
+import { AddProduct } from '@components';
 
 export const AddProductAndCategory = () => {
 	return (

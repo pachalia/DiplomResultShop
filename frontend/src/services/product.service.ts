@@ -38,6 +38,7 @@ export class ProductService {
 			id: product.id,
 			price: product.price ?? undefined,
 			quantity: product.quantity ?? undefined,
+			category_id: product.category_id ?? undefined,
 		});
 		store.dispatch(updateProduct(newUpdateProduct.data));
 	}
