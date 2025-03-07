@@ -1,12 +1,16 @@
 import { OrderStatus } from '@prisma/client';
-import { IPaymentStatus } from '@a2seven/yoo-checkout';
 
-export interface IOrder {
+interface Product {
 	id: string;
+	name: string;
+	quantity: number;
+	price: number;
+}
+export interface IOrder {
+	id: number;
 	status: OrderStatus;
 	created_at: Date;
 	user_email: string;
-	amount: string;
-	in_amount: string;
-	payment_status: IPaymentStatus;
+	product: Product;
+	payment: string;
 }

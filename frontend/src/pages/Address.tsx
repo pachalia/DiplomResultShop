@@ -7,11 +7,15 @@ import {
 import { useEffect } from 'react';
 import { UserService, Message } from '@services';
 import { Button } from '@components';
+import { AxiosError } from 'axios';
+import { setUser, useAppDispatch } from '@redux';
 
 export const Address = () => {
 	const formMethods = useForm<AddressFormData>({ mode: 'onChange' });
 	const controllers = useFormControllers(formMethods, AddressFieldConfig);
+	const dispatch = useAppDispatch();
 	useEffect(() => {
+		UserService.getCurrentUser();
 		UserService.getAddress()
 			.then((res) => {
 				formMethods.setValue('city', res?.city ?? '');
@@ -20,7 +24,13 @@ export const Address = () => {
 				formMethods.setValue('zipCode', res?.zipCode ?? '');
 				formMethods.setValue('street', res?.street ?? '');
 			})
-			.catch((e: Error) => Message.danger(e.message));
+			.catch((e: AxiosError) => {
+				if (e.status === 401) {
+					dispatch(setUser(null));
+				} else {
+					Message.danger(e.message);
+				}
+			});
 	}, []);
 	const onSubmit = (data: AddressFormData) => {
 		UserService.updateAddress(data)
@@ -31,8 +41,7 @@ export const Address = () => {
 		<>
 			<form
 				onSubmit={formMethods.handleSubmit(onSubmit)}
-				className={'w-1/3 relative'}
-				style={{ top: '15%' }}
+				className={'m-auto w-1/3'}
 			>
 				{controllers.map(({ field, fieldState }, index) => (
 					<label

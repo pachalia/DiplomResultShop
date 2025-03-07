@@ -9,7 +9,7 @@ interface IProductsCardProps {
 export const Card: React.FC<IProductsCardProps> = ({ image, price, name, id }) => {
 	return (
 		<>
-			<div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4 w-6/12">
+			<div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4">
 				{image && <img className="rounded-t-lg m-auto" src={image} alt="" />}
 				<div className="p-5">
 					<a href="#">

@@ -9,9 +9,9 @@ export type AddressFormData = {
 };
 
 export const AddressFieldConfig: FieldConfig<AddressFormData>[] = [
-	{ name: 'city', rules: { required: 'Поле обязательно' } },
-	{ name: 'state', rules: { required: 'Поле обязательно' } },
-	{ name: 'street', rules: { required: 'Поле обязательно' } },
-	{ name: 'zipCode', rules: { required: 'Поле обязательно' } },
-	{ name: 'phone', rules: { required: 'Поле обязательно' } },
+	{ name: 'city', rules: { required: 'Поле обязательно' }, defaultValue: '' },
+	{ name: 'state', rules: { required: 'Поле обязательно' }, defaultValue: '' },
+	{ name: 'street', rules: { required: 'Поле обязательно' }, defaultValue: '' },
+	{ name: 'zipCode', rules: { required: 'Поле обязательно' }, defaultValue: '' },
+	{ name: 'phone', rules: { required: 'Поле обязательно' }, defaultValue: '' },
 ];

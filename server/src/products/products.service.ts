@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreatePtoductDto } from '../dto/create-product.dto';
-import { Product } from '@prisma/client';
+import { Product, Prisma } from '@prisma/client';
 import { SharpService } from 'nestjs-sharp';
 import { plainToInstance } from 'class-transformer';
 import { CategoryPaginationDto } from '../shared/category-pagination.dto';
@@ -58,36 +58,51 @@ export class ProductsService {
 		const {
 			category,
 			order,
+			product,
 			offset: skip,
 			limit: take,
 		} = plainToInstance(CategoryPaginationDto, productPagination);
-		let products = [];
-		let count: number = 0;
-		if (!category) {
-			count = await this.prisma.product.count();
-			products = await this.prisma.product.findMany({
-				skip,
-				take,
-				orderBy: order ? { price: order } : undefined,
-			});
-			return [products, count];
+		const _category =
+			category &&
+			(await this.prisma.category.findFirst({ where: { name: category } }));
+		if (category && !_category) {
+			throw new NotFoundException('Категория не найдена');
 		}
 		if (order && order !== 'asc' && order !== 'desc') {
 			throw new BadRequestException(
 				`Нужно указать 'asc' или 'desc'. У вас указан '${order}'`,
 			);
 		}
-		const _category = await this.prisma.category.findFirst({
-			where: { name: category },
-		});
-		if (!_category) throw new NotFoundException('Категория не найдена');
-		count = await this.prisma.product.count({ where: { category_id: category } });
-		products = await this.prisma.product.findMany({
-			where: { category_id: category },
+		const whereCondition = {
+			...(category ? { category_id: category } : {}),
+			...(product
+				? {
+						OR: [
+							{
+								name: {
+									contains: product,
+									mode: Prisma.QueryMode.insensitive,
+								},
+							}, // Поиск по имени продукта
+							{
+								description: {
+									contains: product,
+									mode: Prisma.QueryMode.insensitive,
+								},
+							}, // Поиск по описанию
+						],
+					}
+				: {}),
+		};
+		const products = await this.prisma.product.findMany({
 			skip,
 			take,
-			orderBy: order ? { price: order } : undefined,
+			orderBy: { price: order },
+			where: whereCondition,
 		});
+
+		const count = await this.prisma.product.count({ where: whereCondition });
+
 		return [products, count];
 	}
 
@@ -113,6 +128,11 @@ export class ProductsService {
 	}
 	async getProductById(id: string): Promise<Product> {
 		return await this.prisma.product.findFirst({ where: { id } });
+	}
+	async findProducts(products: string) {
+		return await this.prisma.product.findMany({
+			where: { name: { mode: 'insensitive', contains: products } },
+		});
 	}
 
 	async getProductsByCategory(categoryId: string) {

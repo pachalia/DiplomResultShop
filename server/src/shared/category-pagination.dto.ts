@@ -5,4 +5,8 @@ export class CategoryPaginationDto extends PaginationDto {
 	@IsOptional()
 	@IsString()
 	category?: string;
+
+	@IsOptional()
+	@IsString()
+	product?: string;
 }

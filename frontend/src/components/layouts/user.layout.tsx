@@ -1,5 +1,5 @@
 import { Layout } from './layout.tsx';
-import { MENU } from '../../constans/menu.constant.ts';
+import { MENU } from '@constans';
 import { useAppDispatch, useAppSelector, setUser } from '@redux';
 import { UserService } from '@services';
 import { useNavigate } from 'react-router-dom';
@@ -17,11 +17,9 @@ export const UserLayout = () => {
 	return (
 		<Layout
 			title="Магазин Васи Пупкина"
-			menuItems={MENU.filter(
-				(val) =>
-					(user && val.path !== '/login') || (!user && val.path !== '/cart'),
-			)}
+			menuItems={MENU}
 			user={user}
+			userLayout={true}
 			onLogout={clickHandler}
 		/>
 	);

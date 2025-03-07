@@ -7,6 +7,7 @@ import {
 	categoryReducer,
 	orderReducer,
 } from './features';
+import { paginationReducer } from './features/slices/paginationSlice.ts';
 
 export const store = configureStore({
 	reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
 		cart: cartReducer,
 		message: messageReducer,
 		order: orderReducer,
+		pagination: paginationReducer,
 	},
 	devTools: true,
 });

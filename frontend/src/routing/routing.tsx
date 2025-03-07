@@ -1,13 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { Cart, NotFound } from '../pages';
+import { NotFound } from '../pages';
 import { useAppSelector } from '@redux';
-import { Category, GeneralLayout } from '@components';
+import { GeneralLayout } from '@components';
 import {
-	managerRoutes,
-	publicRoutes,
-	authRoutes,
 	adminRoutes,
+	authRoutes,
+	managerRoutes,
 	ProtectedRoute,
+	publicRoutes,
 } from '@routing';
 import { Address } from '../pages/Address.tsx';
 
@@ -16,15 +16,17 @@ export const Routing = () => {
 	return (
 		<Routes>
 			<Route element={<GeneralLayout />}>
-				<Route element={<Category />}>
-					{publicRoutes.map(({ path, element }) => (
-						<Route path={path} element={element} />
-					))}
-					<Route path={'cart'} element={user && <Cart />} />
-					<Route path={'address'} element={<Address />} />
-				</Route>
-				{authRoutes.map(({ path, element }) => (
+				{publicRoutes.map(({ path, element }, index) => (
+					<Route path={path} element={element} key={index} />
+				))}
+				<Route
+					path={'address'}
+					element={user ? <Address /> : <Navigate to={'/'} />}
+				/>
+
+				{authRoutes.map(({ path, element }, index) => (
 					<Route
+						key={index}
 						path={path}
 						element={
 							user?.role === 'ADMIN' ? (
@@ -39,8 +41,9 @@ export const Routing = () => {
 						}
 					/>
 				))}
-				{adminRoutes.map(({ path, element }) => (
+				{adminRoutes.map(({ path, element }, index) => (
 					<Route
+						key={index}
 						path={path}
 						element={
 							<ProtectedRoute
@@ -50,8 +53,9 @@ export const Routing = () => {
 						}
 					/>
 				))}
-				{managerRoutes.map(({ path, element }) => (
+				{managerRoutes.map(({ path, element }, index) => (
 					<Route
+						key={index}
 						path={path}
 						element={
 							<ProtectedRoute

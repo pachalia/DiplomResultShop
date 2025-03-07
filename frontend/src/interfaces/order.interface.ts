@@ -1,11 +1,11 @@
 import { PaymentStatus } from './payment';
 
 export type Status = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVIRED' | 'CANCELLED';
-export interface IOrder {
-	id: string;
-	status: Status;
-	createdAt: string;
-}
+// export interface IOrder {
+// 	id: string;
+// 	status: Status;
+// 	createdAt: string;
+// }
 
 export interface IOrderItem {
 	orderId: string;

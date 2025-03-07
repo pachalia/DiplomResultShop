@@ -11,11 +11,14 @@ const lineTable: string[] = ['№', 'Категория', 'Действие'];
 const LIMIT = 4;
 export const TableCategory = () => {
 	const { categories } = useAppSelector((state) => state.category);
-	const [currentPage, setCurrentPage] = useState<number>(1);
+	const [pagination, setPagination] = useState<{
+		currentPage: number;
+		loading: boolean;
+	}>({ currentPage: 1, loading: true });
 	const [editStates, setEditStates] = useState<{
 		[key: string]: { isEditing: boolean; category: string };
 	}>({});
-	const [loading, setLoading] = useState<boolean>(true);
+
 	const dispatch = useAppDispatch();
 	const [findCategory, setFindCategory] = useState<{ name: string }[]>([]);
 	const [isFind, setIsFind] = useState<boolean>(false);
@@ -50,21 +53,21 @@ export const TableCategory = () => {
 			: setIsFind(false);
 	};
 	useEffect(() => {
-		const offset = +(currentPage - 1) * LIMIT;
+		const offset = +(pagination.currentPage - 1) * LIMIT;
 		CategoryService.getCategory(offset.toString(), LIMIT.toString(), 'desc').then(
 			(res) => {
-				setLoading(false);
+				setPagination({ ...pagination, loading: false });
 				dispatch(setCategories(res.data));
 			},
 		);
-	}, [dispatch, currentPage]);
+	}, [dispatch, pagination.currentPage]);
 
 	const totalPages = categories?.total ? Math.ceil(categories.total / LIMIT) : 0;
 
 	return (
 		<>
 			<FindFormCategoryComponent onSubmit={onSubmit} />
-			{!loading ? (
+			{!pagination.loading ? (
 				<>
 					<CategoryTableForAdminLayout
 						findCategory={findCategory}
@@ -78,10 +81,9 @@ export const TableCategory = () => {
 					/>
 					{!isFind && totalPages > 1 && (
 						<Pagination
-							currentPage={currentPage}
+							pagination={pagination}
 							totalPages={totalPages}
-							onPageChange={setCurrentPage}
-							load={setLoading}
+							setPagination={setPagination}
 						/>
 					)}
 				</>

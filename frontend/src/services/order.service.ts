@@ -1,25 +1,38 @@
 import axios, { AxiosError } from 'axios';
-import { URL_API_ORDER } from '@constans';
-import { IOrder, IOrderItem, ITransaction, Payment, Status } from '@interfaces';
+import { URL_API_ORDER, URL_API_PAYMENT } from '@constans';
+import {
+	IOrder,
+	IOrderItem,
+	IOrderPagination,
+	IPaginationData,
+	Payment,
+	Status,
+} from '@interfaces';
+import { IOrderRedux } from '@redux';
 
 interface Address {
-	email: string;
 	city: string;
-	street: string;
 	state: string;
+	street: string;
+	zipCode: string;
 	phone: string;
 }
-interface OrderInfo {
-	id: string;
-	name: string;
-	price_product: number;
-	quantity: number;
-	quantity_stock: number;
+interface OrderItemInfo {
+	orderId: string;
+	product: {
+		id: string;
+		name: string;
+		quantity: number;
+		quantity_stock: number;
+		price: number;
+		image: string;
+	};
 }
 
-export interface OrderInfoResponse {
+export interface PaymentInfoResponse {
+	email: string;
 	address: Address;
-	data: OrderInfo[];
+	orderItem: OrderItemInfo[];
 	payment: Payment;
 }
 
@@ -41,21 +54,26 @@ export class OrderService {
 	}
 
 	static async getOrders(
-		offset: string = '0',
-		limit: string = '4',
-		order: 'asc' | 'desc',
-		status?: Status,
-		email?: string,
-	): Promise<ITransaction> {
+		order?: IOrderPagination,
+	): Promise<IPaginationData<IOrderRedux[]>> {
 		const params = new URLSearchParams();
-		params.append('offset', offset);
-		params.append('limit', limit);
-		params.append('order', order);
-		status && params.append('status', status);
-		email && params.append('email', email);
-		return await axios
-			.get<ITransaction>(`${URL_API_ORDER}/?${params}`)
-			.then((res) => res.data);
+		if (order?.actual_order) {
+			params.append('actual_order', order.actual_order);
+			return await axios
+				.get<
+					IPaginationData<IOrderRedux[]>
+				>(`${URL_API_ORDER}/current-user/?${params}`)
+				.then((res) => res.data);
+		} else {
+			order?.offset && params.append('offset', order.offset.toString());
+			order?.limit && params.append('limit', order.limit.toString());
+			order?.order && params.append('order', order.order);
+			order?.status && params.append('status', order.status);
+			order?.email && params.append('email', order.email);
+			return await axios
+				.get<IPaginationData<IOrderRedux[]>>(`${URL_API_ORDER}/?${params}`)
+				.then((res) => res.data);
+		}
 	}
 
 	static async updateOrderStatus(id: string, status: string) {
@@ -64,19 +82,20 @@ export class OrderService {
 			.then((res) => res.data);
 	}
 
-	static async getOrderInfo(id: string) {
+	static async getPaymentInfo(id: string) {
 		return await axios
-			.get<OrderInfoResponse>(`${URL_API_ORDER}/order-item/${id}`)
+			.get<PaymentInfoResponse>(`${URL_API_PAYMENT}/${id}`)
 			.then((res) => res.data);
 	}
 
-	static async deleteOrderItem(id: string) {
-		return await axios.delete<{
-			id: string;
-			orderId: string;
-			productId: string;
-			quantity: number;
-			price: number;
-		}>(`${URL_API_ORDER}/order-item/${id}`);
+	static async deleteOrder(id: string) {
+		return await axios
+			.delete<{
+				id: string;
+				userId: string;
+				status: string;
+				createdAt: string;
+			}>(`${URL_API_ORDER}/${id}`)
+			.then((res) => res.data);
 	}
 }

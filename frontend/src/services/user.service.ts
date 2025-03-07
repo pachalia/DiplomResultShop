@@ -14,6 +14,9 @@ export class UserService {
 			.then((res) => store.dispatch(setUser(res.data)))
 			.catch((e: AxiosError) => {
 				console.log(e.message);
+				if (e.status === 401) {
+					store.dispatch(setUser(null));
+				}
 				return null;
 			});
 	}

@@ -1,62 +1,83 @@
 import { OrderTableForManager } from './OrdersTableForManager/orderTableForManager.tsx';
-import { useForm } from 'react-hook-form';
-import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';
-import { FindOrdersFieldConfig, FindOrdersFormData } from '@inputs';
+import { FindOrdersFormData } from '@inputs';
+import { FindOrderForm } from '../../../components/manager/FindOrdersForm/findOrderForm.tsx';
+import { Pagination, Spinner } from '@components';
+import { useEffect, useState } from 'react';
 import { setOrder, useAppDispatch } from '@redux';
-import { Button } from '@components';
 import { OrderService } from '@services';
-import { orderStatus } from '@utils';
-import { Status } from '@interfaces';
 
-const status = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVIRED', 'CANCELLED'];
+const LIMIT = 4;
 
 export const Orders = () => {
-	const formMethods = useForm<FindOrdersFormData>({ mode: 'onChange' });
-	const controllers = useFormControllers(formMethods, FindOrdersFieldConfig);
+	const [pagination, setPagination] = useState<{
+		currentPage: number;
+		loading: boolean;
+	}>({ currentPage: 1, loading: true });
+	const [isFindOrder, setIsFindOrder] = useState<boolean>(false);
+	const [email, setEmail] = useState<string>('');
+	const [totalPages, setTotalPages] = useState<number>(0);
 	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		const fetchOrders = async () => {
+			const offset = (pagination.currentPage - 1) * LIMIT;
+			let res;
+
+			if (!isFindOrder) {
+				res = await OrderService.getOrders({
+					offset,
+					limit: LIMIT,
+					order: 'desc',
+				});
+			} else {
+				res = await OrderService.getOrders({
+					offset,
+					limit: LIMIT,
+					order: 'desc',
+					email,
+				});
+			}
+
+			setTotalPages(Math.ceil(res.total / LIMIT));
+			dispatch(setOrder(res));
+			setPagination((prev) => ({ ...prev, loading: false }));
+		};
+
+		fetchOrders();
+	}, [pagination.currentPage, isFindOrder, email]); // Добавили email в зависимости
+
 	const onSubmit = (data: FindOrdersFormData) => {
-		OrderService.getOrders('0', '4', 'desc', data.status, data.email).then((res) =>
-			dispatch(setOrder(res)),
-		);
+		if (data.email || data.status) {
+			setIsFindOrder(true);
+			setEmail(data.email);
+			setPagination({ currentPage: 1, loading: true }); // Обновляем пагинацию
+		} else {
+			setIsFindOrder(false);
+		}
 	};
+
 	return (
 		<div className={'w-full relative'} style={{ top: '20%' }}>
 			<h1 className={'text-center text-2xl text-black font-bold mb-5'}>
 				Список заказов пользователей
 			</h1>
-			<div className={'w-5/12 m-auto'}>
-				<form onSubmit={formMethods.handleSubmit(onSubmit)} className={'flex'}>
-					{controllers.map(({ field }, index) => (
-						<label
-							key={index}
-							className={
-								'flex flex-col p-1 border border-solid border-gray-400 mb-2.5 w-5/12 mr-4'
-							}
-						>
-							{field.name === 'status' && 'Статус для поиска:'}
-							{field.name === 'email' && 'email для поиска:'}
-							{field.name === 'email' ? (
-								<input {...field} />
-							) : (
-								<select
-									value={field.value}
-									onChange={(e) => field.onChange(e.target.value)}
-									onBlur={field.onBlur}
-								>
-									<option value={''}>{''}</option>
-									{status.map((val) => (
-										<option key={val} value={val}>
-											{orderStatus(val as Status)}
-										</option>
-									))}
-								</select>
-							)}
-						</label>
-					))}
-					<Button title={'Найти'} type={'submit'} />
-				</form>
-			</div>
+			<FindOrderForm onSubmit={onSubmit} />
 			<OrderTableForManager />
+			{!pagination.loading ? (
+				<>
+					{totalPages > 1 && (
+						<Pagination
+							setPagination={setPagination}
+							pagination={pagination}
+							totalPages={totalPages}
+						/>
+					)}
+				</>
+			) : (
+				<div className={'flex justify-center'}>
+					<Spinner />
+				</div>
+			)}
 		</div>
 	);
 };

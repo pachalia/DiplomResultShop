@@ -14,20 +14,22 @@ export const UsersTable = () => {
 		[key: string]: { isEditing: boolean; role: string };
 	}>({});
 
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [loading, setLoading] = useState<boolean>(true);
+	const [pagination, setPagination] = useState<{
+		currentPage: number;
+		loading: boolean;
+	}>({ currentPage: 1, loading: true });
 
 	const dispatch = useAppDispatch();
 	const { users_list } = useAppSelector((state) => state.user);
 
 	useEffect(() => {
-		const offset = (currentPage - 1) * LIMIT;
+		const offset = (pagination.currentPage - 1) * LIMIT;
 		UserService.getUsers(offset.toString(), LIMIT.toString(), 'desc').then((res) => {
-			setLoading(false);
+			setPagination({ ...pagination, loading: false });
 			dispatch(setUsersList(res));
 		});
 		UserService.getUsersRole().then((res) => setRoles(res));
-	}, [dispatch, currentPage]);
+	}, [dispatch, pagination.currentPage]);
 
 	const handleEditClick = (userId: string, currentRole: string) => {
 		setEditStates((prev) => ({
@@ -75,7 +77,7 @@ export const UsersTable = () => {
 	return (
 		<>
 			<FindFormUsersComponent onSubmit={onSubmit} />
-			{!loading ? (
+			{!pagination.loading ? (
 				<>
 					<table>
 						<UsersTableHead lineTable={lineTable} />
@@ -90,10 +92,9 @@ export const UsersTable = () => {
 					</table>
 					{totalPages > 1 && (
 						<Pagination
-							currentPage={currentPage}
+							pagination={pagination}
+							setPagination={setPagination}
 							totalPages={totalPages}
-							onPageChange={setCurrentPage}
-							load={setLoading}
 						/>
 					)}
 				</>

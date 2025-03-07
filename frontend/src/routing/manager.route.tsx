@@ -13,8 +13,8 @@ export const managerRoutes = [
 		element: <AddProduct />,
 	},
 	{
-		path: 'manager/orders/:id',
+		path: 'manager/orders',
 		element: <Orders />,
 	},
-	{ path: 'manager/order/:id', element: <OrderInfo /> },
+	{ path: 'manager/payment/:id', element: <OrderInfo /> },
 ];

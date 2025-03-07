@@ -11,4 +11,8 @@ export class OrderPaginationDto extends PaginationDto {
 	@IsString()
 	@IsEmail()
 	email?: string;
+
+	@IsOptional()
+	@IsString()
+	actual_order?: 'actual' | 'notActual';
 }

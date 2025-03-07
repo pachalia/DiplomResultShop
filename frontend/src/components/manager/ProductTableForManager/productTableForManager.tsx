@@ -1,7 +1,9 @@
-import { useAppSelector } from '@redux';
+import { setProducts, useAppDispatch, useAppSelector } from '@redux';
 import { useEffect, useState } from 'react';
 import { ProductTableForManagerLayout } from './productTableForManagerLayout.tsx';
 import { ProductService } from '@services';
+import { Pagination } from '../../pagination/pagination.tsx';
+import { Spinner } from '../../UI/spinner/spinner.tsx';
 
 const lineTable: string[] = [
 	'№',
@@ -13,8 +15,11 @@ const lineTable: string[] = [
 	'Удалить',
 ];
 
+const LIMIT = 4;
+
 export const ProductTableForManager = () => {
 	const { products } = useAppSelector((state) => state.product);
+	const dispatch = useAppDispatch();
 	const [editStates, setEditStates] = useState<{
 		[key: string]: {
 			price: { isEditing: boolean; val: number };
@@ -22,6 +27,11 @@ export const ProductTableForManager = () => {
 			category_id: { isEditing: boolean; val: string };
 		};
 	}>({});
+
+	const [pagination, setPagination] = useState<{
+		currentPage: number;
+		loading: boolean;
+	}>({ currentPage: 1, loading: true });
 
 	const clickHandler = (
 		id: string,
@@ -49,8 +59,14 @@ export const ProductTableForManager = () => {
 	};
 
 	useEffect(() => {
-		ProductService.getProducts();
-	}, []);
+		const offset = (pagination.currentPage - 1) * LIMIT;
+		ProductService.getProducts({ order: 'desc', offset, limit: LIMIT }).then(
+			(res) => {
+				setPagination({ ...pagination, loading: false });
+				res && dispatch(setProducts(res));
+			},
+		);
+	}, [pagination.currentPage]);
 
 	const handleChange = (
 		id: string,
@@ -93,20 +109,38 @@ export const ProductTableForManager = () => {
 		}));
 	};
 
+	const totalPages = products.total ? Math.ceil(products.total / LIMIT) : 0;
+
 	return (
 		<>
-			{products.length ? (
-				<ProductTableForManagerLayout
-					lineTable={lineTable}
-					products={products}
-					clickHandler={clickHandler}
-					handleChange={handleChange}
-					handleSave={handleSave}
-					editStates={editStates}
-					handleCancel={handleCancel}
-				/>
+			{!pagination.loading && products.data ? (
+				<div className={'flex flex-col w-full'}>
+					<ProductTableForManagerLayout
+						lineTable={lineTable}
+						products={products.data}
+						clickHandler={clickHandler}
+						handleChange={handleChange}
+						handleSave={handleSave}
+						editStates={editStates}
+						handleCancel={handleCancel}
+					/>
+					<div className={'flex justify-center items-center'}>
+						<h2 className={'text-2xl font-bold'}>
+							{' '}
+							Найдено:{' '}
+							<span className={'text-red-700'}>
+								{products.total} продуктов
+							</span>
+						</h2>
+						<Pagination
+							pagination={pagination}
+							totalPages={totalPages}
+							setPagination={setPagination}
+						/>
+					</div>
+				</div>
 			) : (
-				<div></div>
+				<div className={'m-auto'}>{<Spinner />}</div>
 			)}
 		</>
 	);

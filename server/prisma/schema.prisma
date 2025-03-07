@@ -91,10 +91,10 @@ model Address {
 }
 
 model Order {
-    id         String      @id
+    id         Int         @id @default(autoincrement())
     user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     String      @map("user_id")
-    orderItems OrderItem[]
+    orderItems OrderItem?
     status     OrderStatus @default(PENDING)
     createdAt  DateTime    @default(now()) @map("created_at")
 
@@ -104,13 +104,22 @@ model Order {
 model OrderItem {
     id        String  @id @default(uuid())
     order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-    orderId   String  @map("order_id")
+    orderId   Int     @unique @map("order_id")
     product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
     productId String  @map("product_id")
     quantity  Float
     price     Float
+    payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+    paymentId String  @map("payment_id")
 
     @@map("order_items")
+}
+
+model Payment {
+    id        String      @unique
+    orderItem OrderItem[]
+
+    @@map("payments")
 }
 
 enum Role {

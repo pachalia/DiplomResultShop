@@ -22,21 +22,37 @@ import { plainToInstance } from 'class-transformer';
 export class OrderController {
 	constructor(private readonly orderService: OrderService) {}
 
+	// @Post()
+	// async createOrder(@Body() body: { id: string }, @CurrentUser() user: JwtPayload) {
+	// 	return await this.orderService.createOrder(body.id, user.id);
+	// }
+
 	@Post()
-	async createOrder(@Body() body: { id: string }, @CurrentUser() user: JwtPayload) {
-		return await this.orderService.createOrder(body.id, user.id);
+	async createOrder(
+		@Body() body: { paymentId: string },
+		@CurrentUser() user: JwtPayload,
+	) {
+		return await this.orderService.createOrder(user.id, body.paymentId);
 	}
 
 	@UseGuards(RolesGuard)
 	@Roles(Role.MANAGER)
 	@Put()
 	async updateOrderStatus(@Body() body: { id: string; status: OrderStatus }) {
-		return await this.orderService.updateOrderStatus(body.id, body.status);
+		return await this.orderService.updateOrderStatus(+body.id, body.status);
 	}
 
 	@Get('current-user')
-	async getOrdersByCurrentUser(@CurrentUser() user: JwtPayload) {
-		return await this.orderService.getOrdersByCurrentUser(user.id);
+	async getOrdersByCurrentUser(
+		@Query() ordersPaginationDto: OrderPaginationDto,
+		@CurrentUser() user: JwtPayload,
+	) {
+		const ordersPagination = plainToInstance(OrderPaginationDto, ordersPaginationDto);
+		const [data, total] = await this.orderService.getOrders(
+			ordersPagination,
+			user.id,
+		);
+		return { ...ordersPagination, data, total };
 	}
 
 	@UseGuards(RolesGuard)
@@ -53,18 +69,18 @@ export class OrderController {
 		return await this.orderService.createOrderItem(dto);
 	}
 
-	@UseGuards(RolesGuard)
-	@Roles(Role.MANAGER)
-	@Get('order-item/:id')
-	async getOrderItemByOrderId(@Param('id') id: string) {
-		return await this.orderService.getOrderItemByOrderId(id);
-	}
+	// @UseGuards(RolesGuard)
+	// @Roles(Role.MANAGER)
+	// @Get('order-item/:id')
+	// async getOrderItemByOrderId(@Param('id') id: string) {
+	// 	return await this.orderService.getOrderItemByOrderId(id);
+	// }
 
 	@UseGuards(RolesGuard)
 	@Roles(Role.MANAGER)
 	@Delete(':id')
 	async deleteOrder(@Param('id') id: string) {
-		return await this.orderService.deleteOrder(id);
+		return await this.orderService.deleteOrder(+id);
 	}
 
 	@UseGuards(RolesGuard)

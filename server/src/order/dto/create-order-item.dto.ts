@@ -13,4 +13,7 @@ export class CreateOrderItemDto {
 	@IsNotEmpty()
 	@IsString()
 	price: string;
+	@IsNotEmpty()
+	@IsString()
+	paymentId: string;
 }

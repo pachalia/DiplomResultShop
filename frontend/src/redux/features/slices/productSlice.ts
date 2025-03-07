@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IProduct } from '@interfaces';
+import { IProduct, IProductPaginationData } from '@interfaces';
 
 export interface ProductEdit {
 	price?: {
@@ -14,78 +14,52 @@ export interface ProductEdit {
 	};
 }
 export interface IState {
-	products: IProduct[];
-	productEdit: ProductEdit[];
+	products: IProductPaginationData;
+	findProducts: IProductPaginationData;
 }
+export const products: IProductPaginationData = {
+	data: [],
+	limit: 0,
+	total: 0,
+	order: 'desc',
+	offset: 0,
+};
 
 const initialState: IState = {
-	products: [],
-	productEdit: [],
+	products: products,
+	findProducts: products,
 };
 
 export const productSlice = createSlice({
 	name: 'product',
 	initialState,
 	reducers: {
-		setProducts: (state, action: PayloadAction<IProduct[]>) => {
-			state.products = [...action.payload];
+		setProducts: (state, action: PayloadAction<IProductPaginationData>) => {
+			state.products = action.payload;
 		},
 
 		addProduct: (state, action: PayloadAction<IProduct>) => {
-			state.products = [...state.products, action.payload];
+			state.products.total = state.products.total++;
+			state.products.data = [...state.products.data, action.payload];
 		},
 		updateProduct: (state, action: PayloadAction<IProduct>) => {
-			const newState: IProduct[] = [...state.products];
+			const newState: IProduct[] = [...state.products.data];
 			const index = newState.findIndex((val) => val.id === action.payload.id);
 			newState[index] = action.payload;
-			state.products = [...newState];
+			state.products.data = [...newState];
 		},
 		deleteProduct: (state, action: PayloadAction<string>) => {
-			let newState: IProduct[] = [...state.products];
+			let newState: IProduct[] = [...state.products.data];
 			newState = newState.filter((val) => val.id !== action.payload);
-			state.products = [...newState];
+			state.products.data = [...newState];
 		},
-		setPriceProduct: (state, action: PayloadAction<ProductEdit[]>) => {
-			state.productEdit = [...action.payload];
-		},
-		setPriceEdit: (state, action: PayloadAction<{ id: string; isEdit: boolean }>) => {
-			const index = state.productEdit.findIndex(
-				(val) => val.price?.id === action.payload.id,
-			);
-			if (index !== -1) {
-				const currentPrice = state.productEdit[index].price;
-				if (currentPrice) {
-					// Обновляем только поле isEdit
-					state.productEdit[index].price = {
-						...currentPrice,
-						isEdit: action.payload.isEdit,
-					};
-				}
-			}
-		},
-		savePriceEdit: (state, action: PayloadAction<{ id: string; price: number }>) => {
-			const index = state.productEdit.findIndex(
-				(val) => val.price?.id === action.payload.id,
-			);
-			if (index !== -1) {
-				state.productEdit[index].price = {
-					isEdit: false,
-					price: action.payload.price,
-					id: action.payload.id,
-				};
-			}
+		setFindProducts: (state, action: PayloadAction<IProductPaginationData>) => {
+			state.findProducts = action.payload;
 		},
 	},
 });
 
-export const {
-	setProducts,
-	addProduct,
-	updateProduct,
-	deleteProduct,
-	setPriceProduct,
-	setPriceEdit,
-	savePriceEdit,
-} = productSlice.actions;
+export const { setProducts, addProduct, updateProduct, deleteProduct, setFindProducts } =
+	productSlice.actions;
 
 export const productReducer = productSlice.reducer;

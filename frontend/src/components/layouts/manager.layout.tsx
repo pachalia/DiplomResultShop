@@ -1,4 +1,4 @@
-import { Layout } from './layout.tsx';
+import { Layout } from '@components';
 import { MANAGER_MENU } from '@constans';
 import { useAppSelector } from '@redux';
 

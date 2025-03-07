@@ -1,9 +1,6 @@
-import { UserLayout } from './user.layout.tsx';
+import { UserLayout, AdminLayout, Alert, ManagerLayout } from '@components';
 import { useAppSelector } from '@redux';
-import { AdminLayout } from './admin.layout.tsx';
 import { Outlet } from 'react-router-dom';
-import { Alert } from '../alert/alert.tsx';
-import { ManagerLayout } from './manager.layout.tsx';
 
 export const GeneralLayout = () => {
 	const user = useAppSelector((state) => state.user.current_user);
@@ -16,7 +13,7 @@ export const GeneralLayout = () => {
 					{user?.role === 'MANAGER' && <ManagerLayout />}
 					<UserLayout />
 				</header>
-				<div className={'flex bg-amber-50 h-screen'}>
+				<div className={'flex bg-amber-50'} style={{ minHeight: '100vh' }}>
 					<Outlet />
 				</div>
 			</div>

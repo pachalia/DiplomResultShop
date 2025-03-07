@@ -29,24 +29,29 @@ export const ProductCardInfo = () => {
 	};
 
 	return (
-		<div className="w-full flex justify-center py-8">
-			<div className="w-10/12 max-w-md bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700">
-				{product?.image && (
-					<img
-						className="rounded-t-lg  h-64 object-cover w-6/12 m-auto"
-						src={product.image ? product.image : 'images/image.webp'}
-						alt={product.name}
-					/>
-				)}
+		<div className="w-full flex justify-center py-8 h-max">
+			<div className="bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 flex">
+				<div className={'w-3/12'}>
+					{product?.image && (
+						<img
+							className="rounded-t-lg  h-64 object-cover w-6/12 m-auto"
+							src={product.image ? product.image : 'images/image.webp'}
+							alt={product.name}
+						/>
+					)}
+				</div>
+				<div className={'w-5/12'}>
+					<div className={'p-5'}>
+						<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-center">
+							{product?.name}
+						</h5>
+						<h5 className="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-300">
+							{`Описание товара: ${product?.description}`}
+						</h5>
+					</div>
+				</div>
+
 				<div className="p-5">
-					<h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-center">
-						{product?.name}
-					</h5>
-
-					<h5 className="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-300">
-						{`Описание товара: ${product?.description}`}
-					</h5>
-
 					<div className="mt-4 mb-6 text-lg font-bold text-gray-800 dark:text-gray-200">
 						{`Цена: ${product?.price} р.`}
 					</div>

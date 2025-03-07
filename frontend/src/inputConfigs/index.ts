@@ -6,3 +6,4 @@ export * from './find.users.input.config.ts';
 export * from './add.category.input.config.ts';
 export * from './find.orders.input.config.ts';
 export * from './find.category.input.config.ts';
+export * from './find.product.input.config.ts';

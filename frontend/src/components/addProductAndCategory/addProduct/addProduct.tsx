@@ -15,8 +15,7 @@ export const AddProduct: React.FC = () => {
 	useEffect(() => {
 		CategoryService.getCategory().then((res) => dispatch(setCategories(res.data)));
 		categories?.data && formMethods.setValue('category', categories.data[0].name);
-		console.log(categories);
-	}, [formMethods, categories, dispatch]);
+	}, []);
 
 	const onSubmit = (data: AddProductFormData) => {
 		ProductService.addProduct(data).then((res) => {

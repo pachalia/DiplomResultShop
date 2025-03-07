@@ -38,15 +38,13 @@ export const ProductTableForManagerLayout: React.FC<IProductTableForAdminLayout>
 }) => {
 	return (
 		<div className={'w-full flex items-center flex-col'}>
-			<div className={'w-full relative top-1/4'}>
+			<div className={'w-full'}>
 				<h1 className={'text-center text-2xl font-bold'}>Панель менеджера</h1>
 				<table
 					style={{
 						width: '100%',
 						margin: '0 auto',
 						marginBottom: 40,
-						position: 'relative',
-						top: '30%',
 					}}
 				>
 					<thead>

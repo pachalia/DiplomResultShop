@@ -26,3 +26,4 @@ frontend/dist
 *.sln
 *.sw?
 !/frontend/src/redux/features/slices/orderSlice.ts
+!/server/src/order/order.service.ts

@@ -1,5 +1,5 @@
 import { OrderTableForManagerLayoutCell } from './orderTableForManagerLayoutCell.tsx';
-import { PaymentStatus, Status } from '@interfaces';
+import { Status } from '@interfaces';
 import { useAppSelector } from '@redux';
 
 interface EditState {
@@ -9,17 +9,9 @@ interface EditState {
 interface EditStates {
 	[key: string]: EditState; // Ключи - строки, значения - объекты типа EditState
 }
-export interface Order {
-	id: string;
-	status: Status;
-	created_at: string;
-	user_email: string;
-	amount: string;
-	payment_status: PaymentStatus;
-}
+
 interface IOrderTableForManagerLayout {
 	lineTable: string[];
-
 	clickHandler: (id: string, status: Status) => void;
 	handleSaveStatus: (id: string) => void;
 	editStates: EditStates;
@@ -37,7 +29,7 @@ export const OrderTableForManagerLayout: React.FC<IOrderTableForManagerLayout> =
 		<div className={'w-full flex items-center flex-col'}>
 			<table
 				style={{
-					width: '90%',
+					width: '100%',
 					margin: '0 auto',
 					marginBottom: 40,
 					position: 'relative',

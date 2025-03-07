@@ -1,16 +1,15 @@
 import axios, { AxiosError } from 'axios';
 import { URL_API_PRODUCTS } from '@constans';
-import { deleteProduct, setProducts, updateProduct, store } from '@redux';
-import { IProductsResponse } from '../responses/products.response.ts';
-import { ICategoryPagination, IProduct } from '@interfaces';
+import { deleteProduct, setProducts, store, updateProduct } from '@redux';
+import { IProduct, IProductPagination, IProductPaginationData } from '@interfaces';
 import { AddProductFormData } from '@inputs';
 import { Message } from './message.service.ts';
 
 export class ProductService {
-	static async getProducts(pagination?: ICategoryPagination) {
+	static async getProducts(pagination?: IProductPagination) {
 		if (!pagination) {
-			const res = await axios.get<IProductsResponse>(URL_API_PRODUCTS);
-			store.dispatch(setProducts(res.data.data));
+			const res = await axios.get<IProductPaginationData>(URL_API_PRODUCTS);
+			store.dispatch(setProducts(res.data));
 			return;
 		}
 		const params = new URLSearchParams();
@@ -26,9 +25,11 @@ export class ProductService {
 		if (pagination.order) {
 			params.append('order', pagination.order);
 		}
+		if (pagination.product) {
+			params.append('product', pagination.product);
+		}
 		const query = `${URL_API_PRODUCTS}/?${params.toString()}`;
-		const res = await axios.get<IProductsResponse>(query);
-		store.dispatch(setProducts(res.data.data));
+		return await axios.get<IProductPaginationData>(query).then((res) => res.data);
 	}
 
 	static async updateProduct(

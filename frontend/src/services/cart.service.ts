@@ -2,6 +2,7 @@ import axios from 'axios';
 import { URL_API_CART } from '@constans';
 import { ICart } from '@interfaces';
 import { addProductToCart, setCart, store } from '@redux';
+import { Message } from './message.service.ts';
 
 export class CartService {
 	static async getCart() {
@@ -17,7 +18,12 @@ export class CartService {
 				productId,
 				quantity,
 			})
-			.then((res) => res.data);
+			.then((res) => {
+				if (res.data.id) {
+					Message.success('Продукт добавлен в корзину');
+					return res.data;
+				}
+			});
 		cart && store.dispatch(addProductToCart(cart));
 	}
 

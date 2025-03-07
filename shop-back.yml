@@ -4,7 +4,7 @@ services:
     container_name: shop-server
     build:
       context: ./server
-    command: npm run start
+    command: npm run start:prod
     depends_on:
       - db
     restart: unless-stopped

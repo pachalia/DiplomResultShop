@@ -18,3 +18,5 @@ export * from './admin/users/find.form.users.component.tsx';
 export * from './admin/users/users.table.tsx';
 export * from './admin/users/users.table.cell.tsx';
 export * from './admin/users/users.table.head.tsx';
+export * from './alert/alert.tsx';
+export * from './layouts/manager.layout.tsx';
