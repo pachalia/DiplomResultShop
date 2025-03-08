@@ -3,8 +3,10 @@ import { FindOrdersFormData } from '@inputs';
 import { FindOrderForm } from '../../../components/manager/FindOrdersForm/findOrderForm.tsx';
 import { Pagination, Spinner } from '@components';
 import { useEffect, useState } from 'react';
-import { setOrder, useAppDispatch } from '@redux';
-import { OrderService } from '@services';
+import { setOrder, useAppDispatch, useAppSelector } from '@redux';
+import { Message, OrderService } from '@services';
+import { Status } from '@interfaces';
+import { AxiosError } from 'axios';
 
 const LIMIT = 4;
 
@@ -15,14 +17,15 @@ export const Orders = () => {
 	}>({ currentPage: 1, loading: true });
 	const [isFindOrder, setIsFindOrder] = useState<boolean>(false);
 	const [email, setEmail] = useState<string>('');
+	const [status, setStatus] = useState<Status | undefined>(undefined);
 	const [totalPages, setTotalPages] = useState<number>(0);
 	const dispatch = useAppDispatch();
+	const { transaction } = useAppSelector((state) => state.order);
 
 	useEffect(() => {
 		const fetchOrders = async () => {
 			const offset = (pagination.currentPage - 1) * LIMIT;
 			let res;
-
 			if (!isFindOrder) {
 				res = await OrderService.getOrders({
 					offset,
@@ -35,6 +38,10 @@ export const Orders = () => {
 					limit: LIMIT,
 					order: 'desc',
 					email,
+					status,
+				}).catch((e: AxiosError) => {
+					Message.danger(e.message);
+					return { ...transaction, data: [], total: 0 };
 				});
 			}
 
@@ -44,12 +51,13 @@ export const Orders = () => {
 		};
 
 		fetchOrders();
-	}, [pagination.currentPage, isFindOrder, email]); // Добавили email в зависимости
+	}, [pagination.currentPage, isFindOrder, email, status]); // Добавили email в зависимости
 
 	const onSubmit = (data: FindOrdersFormData) => {
 		if (data.email || data.status) {
 			setIsFindOrder(true);
 			setEmail(data.email);
+			setStatus(data.status);
 			setPagination({ currentPage: 1, loading: true }); // Обновляем пагинацию
 		} else {
 			setIsFindOrder(false);
@@ -62,21 +70,21 @@ export const Orders = () => {
 				Список заказов пользователей
 			</h1>
 			<FindOrderForm onSubmit={onSubmit} />
-			<OrderTableForManager />
 			{!pagination.loading ? (
-				<>
-					{totalPages > 1 && (
-						<Pagination
-							setPagination={setPagination}
-							pagination={pagination}
-							totalPages={totalPages}
-						/>
-					)}
-				</>
+				<OrderTableForManager />
 			) : (
 				<div className={'flex justify-center'}>
 					<Spinner />
 				</div>
+			)}
+			{!pagination.loading && totalPages > 1 ? (
+				<Pagination
+					totalPages={totalPages}
+					pagination={pagination}
+					setPagination={setPagination}
+				/>
+			) : (
+				''
 			)}
 		</div>
 	);

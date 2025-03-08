@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './pagination.module.css';
 
 interface PaginationProps {
@@ -7,8 +7,6 @@ interface PaginationProps {
 	setPagination: React.Dispatch<
 		React.SetStateAction<{ currentPage: number; loading: boolean }>
 	>;
-	// onPageChange: (page: number) => void;
-	// load: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export const Pagination: React.FC<PaginationProps> = ({
 	totalPages,
