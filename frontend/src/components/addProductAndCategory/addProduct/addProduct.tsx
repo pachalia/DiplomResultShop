@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { addProductFieldConfig, AddProductFormData } from '@inputs';
 import { useFormControllers } from '../../../hooks/form-controllers.hook.ts';

@@ -9,8 +9,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 		super({
 			clientID: configService.get('GOOGLE_CLIENT_ID'), // получите это из Google Cloud Console
 			clientSecret: configService.get('GOOGLE_CLIENT_SECRET'), // получите это из Google Cloud Console
-			callbackURL: 'http://localhost:3000/api/auth/google/callback', // измените это на свой callback URL
+			callbackURL: 'https://andreypachalia.ru/api/auth/google/callback', // измените это на свой callback URL
 			scope: ['email', 'profile'],
+			prompt: 'select_account',
 		});
 	}
 
@@ -18,8 +19,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 		accessToken: string,
 		refreshToken: string,
 		profile,
-		done: (err: any, user: any, info?: any) => void,
-	): Promise<any> {
+		done: (err: unknown, user: unknown, info?: unknown) => void,
+	): Promise<void> {
 		const { name, emails, photos } = profile;
 		const user = {
 			email: emails[0].value,

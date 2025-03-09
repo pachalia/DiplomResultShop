@@ -1,13 +1,12 @@
 import {
 	ConflictException,
-	HttpException,
 	HttpStatus,
 	Injectable,
 	Logger,
 	UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Provider, Token, User } from '@prisma/client';
+import { Provider, Role, Token, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 import { UserService } from '@user/user.service';
 import { compareSync } from 'bcrypt';
@@ -197,26 +196,37 @@ export class AuthService {
 		return _token && (await this.prismaService.token.delete({ where: { token } }));
 	}
 
-	async providerAuth(email: string, agent: string, provider: Provider) {
+	async providerAuth(email: string, agent: string, provider: Provider, res: Response) {
 		const userExists = await this.userService.findOne(email);
 		if (userExists) {
-			const user = await this.userService.save({ email, provider }).catch((err) => {
-				this.logger.error(err);
-				return null;
+			const token = await this.generateTokens(userExists, agent);
+			await this.cookieAuthAndRefresh(token, res);
+			return token;
+		}
+		const user = await this.userService
+			.save({
+				email,
+				provider,
+				role: Role.CUSTOMER,
+			})
+			.catch((e) => {
+				this.logger.error(e.message);
+				return null as User;
 			});
-			return this.generateTokens(user, agent);
-		}
-		const user = await this.userService.save({ email, provider }).catch((err) => {
-			this.logger.error(err);
-			return null;
+		await this.prismaService.cart.create({ data: { userId: user.id } });
+		await this.prismaService.address.create({
+			data: {
+				userId: user.id,
+				street: '',
+				phone: '',
+				zipCode: '',
+				state: '',
+				city: '',
+			},
 		});
-		if (!user) {
-			throw new HttpException(
-				`Не получилось создать пользователя с email ${email} в Google auth`,
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-		return this.generateTokens(user, agent);
+		const token = await this.generateTokens(user, agent);
+		await this.cookieAuthAndRefresh(token, res);
+		return token;
 	}
 
 	logout(res: Response) {

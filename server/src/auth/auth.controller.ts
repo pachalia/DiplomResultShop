@@ -1,5 +1,4 @@
 import { Cookie, CurrentUser, Public, UserAgent } from '@common/decorators';
-import { HttpService } from '@nestjs/axios';
 import {
 	BadRequestException,
 	Body,
@@ -13,23 +12,19 @@ import {
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { GoogleGuard } from './guargs/google.guard';
 import { YandexGuard } from './guargs/yandex.guard';
 import { IUser } from '../interfaces/user.interface';
+import { Provider } from '@prisma/client';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
 @Controller('auth')
 export class AuthController {
-	constructor(
-		private readonly authService: AuthService,
-		private readonly configService: ConfigService,
-		private readonly httpService: HttpService,
-	) {}
+	constructor(private readonly authService: AuthService) {}
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Public()
@@ -61,7 +56,6 @@ export class AuthController {
 				`Не получается войти с данными ${JSON.stringify(dto)}`,
 			);
 		}
-		await this.authService.cookieAuthAndRefresh(tokens, res);
 		res.json({ id: tokens.id, email: tokens.email, role: tokens.role });
 	}
 
@@ -70,7 +64,6 @@ export class AuthController {
 		res.json({ id: user.id, email: user.email, role: user.role });
 	}
 
-	@Public()
 	@Get('logout')
 	async logout(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
 		if (!refreshToken) {
@@ -81,98 +74,49 @@ export class AuthController {
 		this.authService.logout(res);
 	}
 
-	// @Get('refresh-tokens')
-	// async refreshTokens(
-	// 	@Cookie(REFRESH_TOKEN) refreshToken: string,
-	// 	@Res() res: Response,
-	// 	@UserAgent() agent: string,
-	// ) {
-	// 	if (!refreshToken) {
-	// 		throw new UnauthorizedException();
-	// 	}
-	// 	const tokens = await this.authService.refreshTokens(refreshToken, agent);
-	// 	if (!tokens) {
-	// 		throw new UnauthorizedException();
-	// 	}
-	// 	res.json(tokens);
-	// }
-
-	// private setRefreshTokenToCookies(tokens: ITokenModel, res: Response) {
-	// 	if (!tokens) {
-	// 		throw new UnauthorizedException();
-	// 	}
-	// 	res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
-	// 		httpOnly: false,
-	// 		sameSite: 'lax',
-	// 		expires: new Date(tokens.refreshToken.exp),
-	// 		secure: true,
-	// 		// this.configService.get('NODE_ENV', 'development') === 'production',
-	// 		path: '/',
-	// 	});
-	// 	res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
-	// }
-
+	@Public()
 	@UseGuards(GoogleGuard)
 	@Get('google')
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	googleAuth() {}
 
+	@Public()
 	@UseGuards(GoogleGuard)
 	@Get('google/callback')
-	googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-		const token = req.user['accessToken'];
-		return res.redirect(
-			`http://localhost:3010/api/auth/success-google?token=${token}`,
+	async googleAuthCallback(
+		@Req() req: Request,
+		@Res() res: Response,
+		@UserAgent() agent: string,
+	) {
+		await this.authService.providerAuth(
+			req.user['email'],
+			agent,
+			Provider.GOOGLE,
+			res,
 		);
+		return res.redirect('/');
 	}
 
-	// @Get('success-google')
-	// // eslint-disable-next-line @typescript-eslint/no-empty-function
-	// successGoogle(
-	// 	@Query('token') token: string,
-	// 	@UserAgent() agent: string,
-	// 	@Res() res: Response,
-	// ) {
-	// 	return this.httpService
-	// 		.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`)
-	// 		.pipe(
-	// 			mergeMap(({ data: { email } }) =>
-	// 				this.authService.providerAuth(email, agent, Provider.GOOGLE),
-	// 			),
-	// 			map((data) => this.setRefreshTokenToCookies(data, res)),
-	// 			handleTimeoutAndErrors(),
-	// 		);
-	// }
-
+	@Public()
 	@UseGuards(YandexGuard)
 	@Get('yandex')
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	yandexAuth() {}
 
+	@Public()
 	@UseGuards(YandexGuard)
 	@Get('yandex/callback')
-	yandexAuthCallback(@Req() req: Request, @Res() res: Response) {
-		const token = req.user['accessToken'];
-		return res.redirect(
-			`http://localhost:3010/api/auth/success-yandex?token=${token}`,
+	async yandexAuthCallback(
+		@Req() req: Request,
+		@Res() res: Response,
+		@UserAgent() agent: string,
+	) {
+		await this.authService.providerAuth(
+			req.user['email'],
+			agent,
+			Provider.YANDEX,
+			res,
 		);
+		return res.redirect('/');
 	}
-
-	// @Get('success-yandex')
-	// // eslint-disable-next-line @typescript-eslint/no-empty-function
-	// successYandex(
-	// 	@Query('token') token: string,
-	// 	@UserAgent() agent: string,
-	// 	@Res() res: Response,
-	// ) {
-	// 	return this.httpService
-	// 		.get(`https://login.yandex.ru/info?format=json&oauth_token=${token}`)
-	// 		.pipe(
-	// 			mergeMap(({ data: { default_email } }) =>
-	// 				this.authService.providerAuth(default_email, agent, Provider.YANDEX),
-	// 			),
-	// 			map((data) => this.setRefreshTokenToCookies(data, res)),
-	// 			handleTimeoutAndErrors(),
-	// 		);
-	// }
 }

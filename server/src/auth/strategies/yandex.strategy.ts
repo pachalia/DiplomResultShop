@@ -9,7 +9,8 @@ export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
 		super({
 			clientID: configService.get('YANDEX_APP_ID'), // Замените на свой APP_ID
 			clientSecret: configService.get('YANDEX_APP_SECRET'), // Замените на свой APP_SECRET
-			callbackURL: 'http://localhost:3000/api/auth/yandex/callback', // Замените на свой callback URL
+			callbackURL: 'https://andreypachalia.ru/api/auth/yandex/callback', // Замените на свой callback URL
+			scope: ['login:email'],
 		});
 	}
 
@@ -17,15 +18,14 @@ export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
 		accessToken: string,
 		refreshToken: string,
 		profile,
-		done: (err: any, user: any, info?: any) => void,
-	): Promise<any> {
-		const { id, displayName, emails, photos } = profile;
+		done: (err: unknown, user: unknown, info?: unknown) => void,
+	): Promise<void> {
+		const { id, displayName, emails } = profile;
 		// Здесь вы можете провести проверку пользователя и сохранить его данные в базе данных, если это необходимо.
 		const user = {
 			id,
 			displayName,
 			email: emails[0].value,
-			picture: photos[0].value,
 			accessToken,
 		};
 		done(null, user);

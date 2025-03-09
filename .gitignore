@@ -12,7 +12,6 @@ server/node_modules
 frontend/dist
 frontend/dist-ssr
 server/dist
-frontend/dist
 *.local
 
 # Editor directories and files
@@ -27,3 +26,5 @@ frontend/dist
 *.sw?
 !/frontend/src/redux/features/slices/orderSlice.ts
 !/server/src/order/order.service.ts
+
+server/.env

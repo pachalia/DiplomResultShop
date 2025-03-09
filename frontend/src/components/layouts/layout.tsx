@@ -58,7 +58,7 @@ export const Layout: React.FC<LayoutProps> = ({
 								<div
 									className={'flex flex-col absolute'}
 									style={{
-										top: `${!user ? '7%' : '12%'}`,
+										top: `${user?.role === 'CUSTOMER' || !user ? '6%' : '12%'}`,
 										background: 'antiquewhite',
 										padding: '0 10px',
 										zIndex: '10',
@@ -101,7 +101,7 @@ export const Layout: React.FC<LayoutProps> = ({
 										<div
 											className={'absolute flex flex-col'}
 											style={{
-												top: '12%',
+												top: `${user?.role === 'CUSTOMER' || !user ? '6%' : '12%'}`,
 												background: 'antiquewhite',
 												padding: '0 10px',
 												zIndex: '15',

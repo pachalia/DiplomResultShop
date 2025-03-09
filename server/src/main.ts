@@ -10,7 +10,11 @@ async function bootstrap() {
 	const port = configService.get<number>('PORT') || 3007;
 	app.use(cookieParser());
 	app.setGlobalPrefix('api');
-	app.enableCors({ origin: true });
+	app.enableCors({
+		origin: '*', // Укажите ваш фронтенд-домен
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+		credentials: true,
+	});
 	app.useGlobalInterceptors();
 	app.useGlobalPipes(
 		new ValidationPipe({

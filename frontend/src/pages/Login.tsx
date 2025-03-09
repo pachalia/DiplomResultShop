@@ -4,8 +4,9 @@ import { loginFieldConfig, LoginFormData } from '@inputs';
 import { useFormControllers } from '../hooks/form-controllers.hook.ts';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@components';
-import { useAppDispatch, useAppSelector, setLoginMessage, setUser } from '@redux';
+import { setLoginMessage, setUser, useAppDispatch, useAppSelector } from '@redux';
 import { useEffect } from 'react';
+import { URL_API } from '@constans';
 
 type FormData = {
 	email: string;
@@ -79,6 +80,21 @@ export const Login = () => {
 
 					{message && <span style={{ color: 'red' }}>{message}</span>}
 				</form>
+				<div className={'flex justify-around'}>
+					<Button
+						onClick={() => {
+							window.location.href = `${URL_API}/auth/yandex`;
+						}}
+						title={'YANDEX'}
+					/>
+					<Button
+						onClick={() => {
+							window.location.href = `${URL_API}/auth/google`;
+						}}
+						title={'GOOGLE'}
+					/>
+				</div>
+
 				<NavLink to={'/register'} className={'mx-auto mt-12'}>
 					<Button title={'Регистрация'} />
 				</NavLink>

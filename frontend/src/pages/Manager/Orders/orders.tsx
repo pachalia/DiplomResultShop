@@ -1,4 +1,4 @@
-import { OrderTableForManager } from './OrdersTableForManager/orderTableForManager.tsx';
+import { OrderTableForManager } from '../../../components/manager/OrdersTableForManager/orderTableForManager.tsx';
 import { FindOrdersFormData } from '@inputs';
 import { FindOrderForm } from '../../../components/manager/FindOrdersForm/findOrderForm.tsx';
 import { Pagination, Spinner } from '@components';
