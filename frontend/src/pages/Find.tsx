@@ -26,6 +26,7 @@ export const Find: React.FC = () => {
 								price={val.price}
 								name={val.name}
 								image={val.image}
+								quantity={val.quantity}
 							/>
 						</div>
 					))

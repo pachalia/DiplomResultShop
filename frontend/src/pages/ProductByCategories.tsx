@@ -46,6 +46,7 @@ export const ProductByCategories = () => {
 											id={val.id}
 											price={val.price}
 											name={val.name}
+											quantity={val.quantity}
 											image={val.image}
 										/>
 									</div>
