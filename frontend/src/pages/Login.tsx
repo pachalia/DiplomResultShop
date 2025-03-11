@@ -7,6 +7,7 @@ import { Button } from '@components';
 import { setLoginMessage, setUser, useAppDispatch, useAppSelector } from '@redux';
 import { useEffect } from 'react';
 import { URL_API } from '@constans';
+import axios from 'axios';
 
 type FormData = {
 	email: string;
@@ -83,13 +84,13 @@ export const Login = () => {
 				<div className={'flex justify-around'}>
 					<Button
 						onClick={() => {
-							window.location.href = `${URL_API}/auth/yandex`;
+							axios.get(`${URL_API}/auth/yandex`);
 						}}
 						title={'YANDEX'}
 					/>
 					<Button
 						onClick={() => {
-							window.location.href = `${URL_API}/auth/google`;
+							axios.get(`${URL_API}/auth/google`);
 						}}
 						title={'GOOGLE'}
 					/>

@@ -5,8 +5,15 @@ interface IProductsCardProps {
 	image: string | null;
 	name: string;
 	price: number;
+	quantity: number;
 }
-export const Card: React.FC<IProductsCardProps> = ({ image, price, name, id }) => {
+export const Card: React.FC<IProductsCardProps> = ({
+	image,
+	price,
+	name,
+	id,
+	quantity,
+}) => {
 	return (
 		<>
 			<div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4">
@@ -19,6 +26,9 @@ export const Card: React.FC<IProductsCardProps> = ({ image, price, name, id }) =
 					</a>
 					<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
 						{`Цена ${price}р.`}
+					</p>
+					<p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+						{`Осталось ${quantity}`}
 					</p>
 					<NavLink
 						to={`/product/${id}`}

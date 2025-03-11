@@ -38,6 +38,7 @@ export const Home: React.FC = () => {
 										<Card
 											id={val.id}
 											price={val.price}
+											quantity={val.quantity}
 											name={val.name}
 											image={val.image}
 										/>
